@@ -63,7 +63,7 @@
             font-size: 16px;
             box-sizing: border-box;
         }
-        textarea { margin-top: 20px; height: 300px; resize: vertical; background-color: #f8f9fa; }
+        textarea { margin-top: 10px; height: 280px; resize: vertical; background-color: #f8f9fa; }
         button {
             display: block;
             width: 100%;
@@ -130,7 +130,7 @@
             overflow-y: auto;
             opacity: 0;
             transform: translateY(-10px);
-            transition: opacity 0.2s ease, transform 0.2s ease;
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
         .scenario-dropdown.show {
             display: block;
@@ -151,11 +151,11 @@
             background-color: #f0f0f0;
         }
         
-        /* --- Callback Options --- */
+        /* --- Contextual Options --- */
         .hidden {
             display: none;
         }
-        #callback-options {
+        .contextual-options {
             margin-top: 15px;
             padding: 15px;
             background-color: #f8f9fa;
@@ -166,7 +166,7 @@
             display: flex;
             gap: 10px;
         }
-        #callback-options button {
+        .contextual-options button {
             margin-top: 10px;
             padding: 10px;
             font-size: 14px;
@@ -227,10 +227,15 @@
             <div id="scenarioDropdown" class="scenario-dropdown"></div>
         </div>
 
+        <div id="delay-options" class="contextual-options hidden">
+            <label for="delayStartDate">Delay Identified On:</label>
+            <input type="date" id="delayStartDate">
+        </div>
+        
         <textarea id="messageOutput" readonly placeholder="Your generated message will appear here..."></textarea>
         <div id="charCounter"></div>
 
-        <div id="callback-options" class="hidden">
+        <div id="callback-options" class="contextual-options hidden">
             <label>Select Date and Time for Callback:</label>
             <div class="datetime-inputs">
                 <input type="date" id="callbackDate">
@@ -258,6 +263,8 @@
     const callbackDateInput = document.getElementById('callbackDate');
     const callbackTimeInput = document.getElementById('callbackTime');
     const insertDateTimeButton = document.getElementById('insertDateTime');
+    const delayOptions = document.getElementById('delay-options');
+    const delayStartDateInput = document.getElementById('delayStartDate');
 
     let selectedScenarioId = null;
 
@@ -389,7 +396,7 @@
             dropdownText: 'Smart Hub Set Up Guide',
             delayDays: 0,
             bt_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new BT Smart Hub. This guide will walk you through everything you need to know to get started and enjoy your superfast internet services as soon as they're connected. Check it out here:\n\nhttps://www.bt.com/help/home/broadband/set-up/bt-smart-hub-how-to-set-up\n\nLet me know if you have any questions or if there's anything else I can assist you with.`,
-            ee_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new EE Smart Hub. This guide will walk you through everything you need to know to get started. Check it out here:\n\nhttps://ee.co.uk/help/broadband/getting-started/setting-up-your-smart-hub\n\nLet me know if you have any questions.`
+            ee_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new EE Smart Hub. This guide will walk you through everything you need to know to get a started. Check it out here:\n\nhttps://ee.co.uk/help/broadband/getting-started/setting-up-your-smart-hub\n\nLet me know if you have any questions.`
         },
         {
             id: 'mini_hub_setup',
@@ -434,8 +441,8 @@
     }
 
     // --- Helper function to calculate working days from now ---
-    function calculateWorkday(daysToAdd) {
-        let currentDate = new Date();
+    function calculateWorkday(daysToAdd, startDateString) {
+        let currentDate = startDateString ? new Date(startDateString + 'T00:00:00') : new Date();
         let daysAdded = 0;
         while (daysAdded < daysToAdd) {
             currentDate.setDate(currentDate.getDate() + 1);
@@ -518,7 +525,8 @@
 
         let message = '';
         if (selectedScenario) {
-            const calculatedDate = formatDate(calculateWorkday(selectedScenario.delayDays));
+            const startDate = delayStartDateInput.value;
+            const calculatedDate = formatDate(calculateWorkday(selectedScenario.delayDays, startDate));
             const template = selectedBrand === 'BT' ? selectedScenario.bt_template : selectedScenario.ee_template;
             
             if (selectedScenario.delayDays > 0 && template.includes('{date}')) {
@@ -530,8 +538,9 @@
         
         messageOutput.value = message;
 
-        // Show/hide callback options
+        // Show/hide contextual options
         callbackOptions.classList.toggle('hidden', selectedScenarioId !== 'call_back');
+        delayOptions.classList.toggle('hidden', !selectedScenario || selectedScenario.category !== 'Delays');
 
         // Update character counter
         updateCharCounter();
@@ -579,6 +588,7 @@
         const today = new Date().toISOString().split("T")[0];
         callbackDateInput.min = today;
         callbackDateInput.value = today;
+        delayStartDateInput.value = today;
         populateTimeSlots(today);
     });
 
@@ -610,6 +620,8 @@
     callbackDateInput.addEventListener('change', (e) => {
         populateTimeSlots(e.target.value);
     });
+
+    delayStartDateInput.addEventListener('change', generateMessage);
 
     insertDateTimeButton.addEventListener('click', () => {
         const date = callbackDateInput.value;
