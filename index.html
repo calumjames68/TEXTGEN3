@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF--8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post Text Generator</title>
     <style>
@@ -250,6 +250,7 @@
     </div>
 
 <script>
+    // --- Get references to all the interactive elements on the page ---
     const container = document.querySelector('.container');
     const messageOutput = document.getElementById('messageOutput');
     const copyButton = document.getElementById('copyButton');
@@ -268,14 +269,14 @@
 
     let selectedScenarioId = null;
 
-    // --- All scenarios are now stored here, inside the script ---
+    // --- All scenarios are stored here in this single list ---
     const scenarios = [
         {
             id: 'ducting_issue',
             category: 'Delays',
             dropdownText: 'External Ducting Issue (12 Weeks)',
             delayDays: 60,
-            bt_template: `We're sorry to let you know that there are some issues with the external ducting for your BT service, but don't worry - we've already tasked our contractors with sorting it out! It's quite a complex job, so we're estimating it may take up to 12 weeks to fully resolve.\n\nHowever, we promise to keep you updated along the way and aim to provide you with an update no later than 9 PM on the {date}.\n\nYou can find a helpful booklet here: https://care.bt.com/next_steps.`,
+            bt_template: `We're sorry to let you know that there are some issues with the external ducting for your BT service, but don't worry - we've already tasked our contractors with sorting it out! It's quite a complex job, so we're estimating it may take up to 12 weeks to fully resolve.\n\nHowever, we promise to keep you updated along the way and aim to provide you with an update no later than 9 PM on the {date}.\n\nYou can find a helpful booklet here: https://care.bt.com/next_steps`,
             ee_template: `Hi there. We've hit a snag with some external ducting work for your new EE Full Fibre service. It's a tricky issue that our network partners are working to resolve. We expect this to be sorted within 12 weeks.\n\nYour next update will be scheduled for {date}. We're sorry for the delay and appreciate your patience.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
         },
         {
@@ -299,7 +300,7 @@
             category: 'Delays',
             dropdownText: 'Damaged Cabinet (12 Weeks)',
             delayDays: 60,
-            bt_template: `Hey there, we wanted to let you know that we've identified a fault in the network, but don't worry - we've already assigned an engineer to work on getting it resolved! It's a pretty complex job, so it might take up to twelve weeks to fully fix. But don't worry, we'll be in touch with regular updates and aim to provide you with an update no later than 9 PM on {date}.\n\nPlease read this handy booklet for more detail on the work required to get you your new service: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge anywhere in the UK while you wait. This brilliant booklet will provide all the information you need: https://care.bt.com/_bt_wifi_hotspots.`,
+            bt_template: `Hey there, we wanted to let you know that we've identified a fault in the network, but don't worry - we've already assigned an engineer to work on getting it resolved! It's a pretty complex job, so it might take up to twelve weeks to fully fix. But don't worry, we'll be in touch with regular updates and aim to provide you with an update no later than 9 PM on {date}.\n\nPlease read this handy booklet for more detail on the work required to get you your new service: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge anywhere in the UK while you wait. This brilliant booklet will provide all the information you need: https://care.bt.com/_bt_wifi_hotspots`,
             ee_template: `Hi there, we wanted to let you know that we've identified a network fault affecting your EE service. We've already assigned an engineer to work on it. It's a complex job, so it might take up to twelve weeks to fully fix. We'll be in touch with regular updates and aim to provide you with an update no later than 9 PM on {date}.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
         },
         {
@@ -355,7 +356,7 @@
             category: 'Delays',
             dropdownText: 'Survey Required (30 Days)',
             delayDays: 22,
-            bt_template: `We've received an update from our supplier, and it appears that we'll need to conduct a survey before we can provide you with the full fibre service. We know this might be frustrating, but please bear with us as it can take up to 30 days to complete. We'll be sure to keep you informed and will reach out to you at the latest by 9 PM on {date}.\n\nPlease read this handy booklet for more detail: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge while you wait: https://care.bt.com/_bt_wifi_hotspots.`,
+            bt_template: `We've received an update from our supplier, and it appears that we'll need to conduct a survey before we can provide you with the full fibre service. We know this might be frustrating, but please bear with us as it can take up to 30 days to complete. We'll be sure to keep you informed and will reach out to you at the latest by 9 PM on {date}.\n\nPlease read this handy booklet for more detail: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge while you wait: https://care.bt.com/_bt_wifi_hotspots`,
             ee_template: `We've had an update from our supplier, and it looks like a survey is needed before we can complete your full fibre service. We know this is frustrating, but this can take up to 30 days. We'll keep you informed and will contact you by 9 PM on {date} at the latest.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
         },
         {
@@ -379,7 +380,7 @@
             category: 'Delays',
             dropdownText: 'Tree Cutting (13 Weeks)',
             delayDays: 65,
-            bt_template: `Tree cutting is required to provide you with the fibre service. This has been sent to our supplier's civils team to get done. It can take up to 13 weeks. We will call you by 9 PM on {date}.\n\nPlease read this handy booklet for more detail: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge while you wait: https://care.bt.com/_bt_wifi_hotspots.`,
+            bt_template: `Tree cutting is required to provide you with the fibre service. This has been sent to our supplier's civils team to get done. It can take up to 13 weeks. We will call you by 9 PM on {date}.\n\nPlease read this handy booklet for more detail: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge while you wait: https://care.bt.com/_bt_wifi_hotspots`,
             ee_template: `To provide your fibre service, some tree cutting is required. This has been sent to our supplier's civils team. It can take up to 13 weeks to complete. We will call you by 9 PM on {date}.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
         },
         {
@@ -396,14 +397,14 @@
             dropdownText: 'Smart Hub Set Up Guide',
             delayDays: 0,
             bt_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new BT Smart Hub. This guide will walk you through everything you need to know to get started and enjoy your superfast internet services as soon as they're connected. Check it out here:\n\nhttps://www.bt.com/help/home/broadband/set-up/bt-smart-hub-how-to-set-up\n\nLet me know if you have any questions or if there's anything else I can assist you with.`,
-            ee_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new EE Smart Hub. This guide will walk you through everything you need to know to get a started. Check it out here:\n\nhttps://ee.co.uk/help/broadband/getting-started/setting-up-your-smart-hub\n\nLet me know if you have any questions.`
+            ee_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new EE Smart Hub. This guide will walk you through everything you need to know to get started. Check it out here:\n\nhttps://ee.co.uk/help/broadband/getting-started/setting-up-your-smart-hub\n\nLet me know if you have any questions.`
         },
         {
             id: 'mini_hub_setup',
             category: 'Set Up / General',
             dropdownText: 'Mini Hub Set Up Guide',
             delayDays: 0,
-            bt_template: `Hello there! It was great speaking with you today. I'm sorry to hear about the delay in your fiber installation, but we have good news. We have placed an order for one of our 4G mini hubs for you. Once you receive it, please follow this helpful guide on how to use it. It will keep you connected while you wait for your fiber installation. Plus, it has unlimited data so you can continue using it worry-free!\n\nHere's the link to the guide: http://bt.custhelp.com/app/answers/detail/a_id/63196/related/1`,
+            bt_template: `Hello there! It was great speaking with you today. I'm sorry to hear about the delay in your fiber installation, but we have good news. We have placed an order for one of our 4G mini hubs for you. Once you receive it, please follow this helpful guide on how to use it. It will keep you connected while you wait for your fiber installation. Plus, it has unlimited data so you can continue using it worry-free!\n\nHere's the link to the guide: https://www.bt.com/help/mobile/4g-mini-hub`,
             ee_template: `Hello there! It was great speaking with you today. I'm sorry to hear about the delay in your fiber installation. We have good news: we've ordered a 4G mini hub for you. Once you receive it, this guide shows you how to use it to stay connected with unlimited data while you wait.\n\nHere's the link to the guide: https://ee.co.uk/help/mobile/get-started/smart-benefits/what-is-the-4g-mini-hub-and-how-do-i-use-it`
         },
         {
@@ -411,7 +412,7 @@
             category: 'Set Up / General',
             dropdownText: 'Download the App Guide',
             delayDays: 0,
-            bt_template: `Hi there! It was great speaking with you today. In case you weren't already aware, you can download our handy MyBT app, which allows you to easily manage your BT account. With this app, you can track orders, view your bills, and even run tests on your connection to ensure you're getting the most out of your BT services.\n\nHere's the link to download the app: https://home.bt.com/tech-gadgets/internet/manage-your-bt-account-quickly-and-easily-with-the-new-my-bt-app-11363997056591.`,
+            bt_template: `Hi there! It was great speaking with you today. In case you weren't already aware, you can download our handy MyBT app, which allows you to easily manage your BT account. With this app, you can track orders, view your bills, and even run tests on your connection to ensure you're getting the most out of your BT services.\n\nHere's the link to download the app: https://home.bt.com/tech-gadgets/internet/manage-your-bt-account-quickly-and-easily-with-the-new-my-bt-app-11363997056591`,
             ee_template: `Hi there! It was great speaking with you today. You can easily manage your EE account with our handy My EE app. With the app, you can track orders, view your bills, and check your connection status.\n\nHere's the link to download the app: https://ee.co.uk/myee/app`
         },
         {
@@ -427,7 +428,7 @@
             category: 'Set Up / General',
             dropdownText: 'Great to Speak to You Follow-up',
             delayDays: 0,
-            bt_template: `Hi there, It was great to speak to you today, and I hope everything is sorted now for you. You can also manage your account on BT.com or using the MyBT app on your Iphone or Android mobile. To get more information about it just follow this handy link http://bt.custhelp.com/app/answers/detail/a_id/53804/~/how-to-use-the-my-bt-app`,
+            bt_template: `Hi there, It was great to speak to you today, and I hope everything is sorted now for you. You can also manage your account on BT.com or using the MyBT app on your iPhone or Android mobile. To get more information about it just follow this handy link http://bt.custhelp.com/app/answers/detail/a_id/53804/~/how-to-use-the-my-bt-app`,
             ee_template: `Hi there, It was great to speak to you today, and I hope everything is sorted for you now. You can also manage your account on EE.co.uk or using the My EE app on your mobile. You can find more information here: https://ee.co.uk/myee/app`
         }
     ];
@@ -440,25 +441,27 @@
         return `${day}/${month}/${year}`;
     }
 
-    // --- Helper function to calculate working days from now ---
+    // --- Helper function to calculate working days from a start date ---
     function calculateWorkday(daysToAdd, startDateString) {
+        // Use the provided start date, or default to today if it's not set
         let currentDate = startDateString ? new Date(startDateString + 'T00:00:00') : new Date();
         let daysAdded = 0;
         while (daysAdded < daysToAdd) {
             currentDate.setDate(currentDate.getDate() + 1);
-            if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) { // Skip Sunday (0) and Saturday (6)
+            // Day 0 is Sunday, Day 6 is Saturday. We skip them.
+            if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
                 daysAdded++;
             }
         }
         return currentDate;
     }
     
-    // --- Function to populate the dropdown menu ---
+    // --- Function to populate the dropdown list based on filters and search ---
     function populateDropdown() {
         const selectedCategory = document.querySelector('input[name="category"]:checked').value;
         const searchTerm = scenarioInput.value.toLowerCase();
 
-        // Filter scenarios based on category and search term
+        // Filter scenarios based on the selected category and the search term
         const filteredScenarios = scenarios.filter(scenario => {
             const categoryMatch = selectedCategory === 'All' || scenario.category === selectedCategory;
             const searchMatch = scenario.dropdownText.toLowerCase().includes(searchTerm);
@@ -468,7 +471,7 @@
         // Sort the filtered scenarios alphabetically
         filteredScenarios.sort((a, b) => a.dropdownText.localeCompare(b.dropdownText));
 
-        // Group scenarios by category
+        // Group the filtered scenarios by their category
         const groupedScenarios = filteredScenarios.reduce((acc, scenario) => {
             const category = scenario.category || 'General';
             if (!acc[category]) {
@@ -478,7 +481,7 @@
             return acc;
         }, {});
 
-        scenarioDropdown.innerHTML = '';
+        scenarioDropdown.innerHTML = ''; // Clear the current list
         
         const categoriesToShow = selectedCategory === 'All' ? Object.keys(groupedScenarios).sort() : [selectedCategory];
 
@@ -503,10 +506,11 @@
                 });
             }
         }
+        // Show the dropdown if there are results
         scenarioDropdown.classList.toggle('show', filteredScenarios.length > 0);
     }
     
-    // --- Function to update the theme based on brand selection ---
+    // --- Function to update the theme (colors and logos) ---
     function updateTheme() {
         const selectedBrand = document.querySelector('input[name="brand"]:checked').value;
         if (selectedBrand === 'BT') {
@@ -518,7 +522,7 @@
         }
     }
 
-    // --- Main function to generate the message ---
+    // --- Main function to generate the final message ---
     function generateMessage() {
         const selectedBrand = document.querySelector('input[name="brand"]:checked').value;
         const selectedScenario = scenarios.find(s => s.id === selectedScenarioId);
@@ -538,14 +542,15 @@
         
         messageOutput.value = message;
 
-        // Show/hide contextual options
+        // Show or hide the contextual options based on the selected scenario
         callbackOptions.classList.toggle('hidden', selectedScenarioId !== 'call_back');
         delayOptions.classList.toggle('hidden', !selectedScenario || selectedScenario.category !== 'Delays');
 
-        // Update character counter
+        // Update the character counter
         updateCharCounter();
     }
     
+    // --- Function to update the character and SMS counter ---
     function updateCharCounter() {
         const charLength = messageOutput.value.length;
         const smsCount = Math.ceil(charLength / 160);
@@ -556,13 +561,14 @@
         }
     }
     
-    // --- Function to clear the selection ---
+    // --- Function to clear the current selection ---
     function clearSelection() {
         scenarioInput.value = '';
         selectedScenarioId = null;
         generateMessage();
     }
 
+    // --- Function to populate the time slots for the callback feature ---
     function populateTimeSlots(dateString) {
         callbackTimeInput.innerHTML = '';
         const date = new Date(dateString + 'T00:00:00'); // Prevent timezone issues
@@ -583,6 +589,7 @@
     }
 
     // --- Event Listeners ---
+    // Run when the page first loads
     document.addEventListener('DOMContentLoaded', () => {
         updateTheme(); 
         const today = new Date().toISOString().split("T")[0];
@@ -592,18 +599,22 @@
         populateTimeSlots(today);
     });
 
+    // When brand (BT/EE) is changed
     brandRadios.forEach(radio => radio.addEventListener('change', () => {
         updateTheme();
         generateMessage();
     }));
     
+    // When category (All/Delays/Set Ups) is changed
     categoryRadios.forEach(radio => radio.addEventListener('change', () => {
         clearSelection();
         populateDropdown();
     }));
     
+    // When typing in the search/select bar
     scenarioInput.addEventListener('input', populateDropdown);
     
+    // When clicking the search/select bar
     scenarioInput.addEventListener('click', () => {
         if (scenarioInput.value !== '') {
             clearSelection();
@@ -611,18 +622,22 @@
         populateDropdown();
     });
     
+    // To hide the dropdown when clicking outside of it
     document.addEventListener('click', (e) => {
         if (!container.contains(e.target)) {
             scenarioDropdown.classList.remove('show');
         }
     });
 
+    // When the callback date is changed
     callbackDateInput.addEventListener('change', (e) => {
         populateTimeSlots(e.target.value);
     });
 
+    // When the delay start date is changed
     delayStartDateInput.addEventListener('change', generateMessage);
 
+    // When the "Insert Date & Time" button is clicked
     insertDateTimeButton.addEventListener('click', () => {
         const date = callbackDateInput.value;
         const time = callbackTimeInput.value;
@@ -634,6 +649,7 @@
         }
     });
 
+    // When the "Copy Message" button is clicked
     copyButton.addEventListener('click', () => {
         if (messageOutput.value && selectedScenarioId) {
             try {
