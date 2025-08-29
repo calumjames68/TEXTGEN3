@@ -465,6 +465,13 @@
             charCounter.textContent = '';
         }
     }
+    
+    // --- Function to clear the selection ---
+    function clearSelection() {
+        scenarioInput.value = '';
+        selectedScenarioId = null;
+        generateMessage();
+    }
 
     // --- Event Listeners ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -478,10 +485,20 @@
         generateMessage();
     }));
     
-    categoryRadios.forEach(radio => radio.addEventListener('change', populateDropdown));
+    categoryRadios.forEach(radio => radio.addEventListener('change', () => {
+        clearSelection();
+        populateDropdown();
+    }));
     
     scenarioInput.addEventListener('input', populateDropdown);
-    scenarioInput.addEventListener('focus', populateDropdown);
+    
+    scenarioInput.addEventListener('click', () => {
+        // If the input already has a value, clear it to allow re-selection
+        if (scenarioInput.value !== '') {
+            clearSelection();
+        }
+        populateDropdown();
+    });
     
     document.addEventListener('click', (e) => {
         if (!container.contains(e.target)) {
@@ -491,19 +508,37 @@
 
     copyButton.addEventListener('click', () => {
         if (messageOutput.value && selectedScenarioId) {
-            navigator.clipboard.writeText(messageOutput.value)
-                .then(() => {
+            // The Clipboard API (navigator.clipboard.writeText) can be blocked in some environments (like iFrames).
+            // The document.execCommand('copy') is a fallback that often works in these cases.
+            try {
+                // We need to make the textarea selectable to copy from it
+                messageOutput.readOnly = false;
+                messageOutput.select();
+                messageOutput.setSelectionRange(0, 99999); // For mobile devices
+
+                // Execute the copy command
+                const successful = document.execCommand('copy');
+                
+                if (successful) {
                     statusMessage.textContent = 'Message copied to clipboard!';
-                    setTimeout(() => { statusMessage.textContent = ''; }, 2000);
-                })
-                .catch(err => {
+                } else {
                     statusMessage.textContent = 'Failed to copy!';
-                    console.error('Error copying text: ', err);
-                });
+                }
+
+                // Deselect the text and make it readonly again
+                window.getSelection().removeAllRanges();
+                messageOutput.readOnly = true;
+
+            } catch (err) {
+                statusMessage.textContent = 'Failed to copy!';
+                console.error('Error copying text: ', err);
+            } finally {
+                 setTimeout(() => { statusMessage.textContent = ''; }, 2000);
+            }
         }
     });
 
 </script>
 
 </body>
-</ht
+</html>
