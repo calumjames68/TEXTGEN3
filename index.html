@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF--8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post Text Generator</title>
     <style>
@@ -29,6 +29,10 @@
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s ease;
+        }
+        .container:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
         }
         .logo-container {
             text-align: center;
@@ -51,7 +55,7 @@
             color: #3b4d61;
             margin-bottom: 8px;
         }
-        select, textarea, input[type="text"] {
+        select, textarea, input[type="text"], input[type="date"] {
             width: 100%;
             padding: 12px;
             border: 1px solid #dbe2e8;
@@ -71,7 +75,11 @@
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
         .status { text-align: center; margin-top: 15px; color: #28a745; font-weight: 500; height: 20px; }
         .filter-selector { display: flex; justify-content: center; margin-bottom: 15px; border: 1px solid #dbe2e8; border-radius: 6px; overflow: hidden; }
@@ -120,6 +128,14 @@
             z-index: 1;
             max-height: 250px;
             overflow-y: auto;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .scenario-dropdown.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
         .scenario-dropdown div {
             padding: 12px 16px;
@@ -133,6 +149,27 @@
             color: #555;
             font-size: 14px;
             background-color: #f0f0f0;
+        }
+        
+        /* --- Callback Options --- */
+        .hidden {
+            display: none;
+        }
+        #callback-options {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #dbe2e8;
+        }
+        .datetime-inputs {
+            display: flex;
+            gap: 10px;
+        }
+        #callback-options button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 14px;
         }
 
         /* --- Theme Styling --- */
@@ -192,6 +229,15 @@
 
         <textarea id="messageOutput" readonly placeholder="Your generated message will appear here..."></textarea>
         <div id="charCounter"></div>
+
+        <div id="callback-options" class="hidden">
+            <label>Select Date and Time for Callback:</label>
+            <div class="datetime-inputs">
+                <input type="date" id="callbackDate">
+                <select id="callbackTime"></select>
+            </div>
+            <button id="insertDateTime">Insert Date & Time</button>
+        </div>
         
         <button id="copyButton">Copy Message</button>
         <div id="statusMessage" class="status"></div>
@@ -208,6 +254,10 @@
     const scenarioInput = document.getElementById('scenarioInput');
     const scenarioDropdown = document.getElementById('scenarioDropdown');
     const charCounter = document.getElementById('charCounter');
+    const callbackOptions = document.getElementById('callback-options');
+    const callbackDateInput = document.getElementById('callbackDate');
+    const callbackTimeInput = document.getElementById('callbackTime');
+    const insertDateTimeButton = document.getElementById('insertDateTime');
 
     let selectedScenarioId = null;
 
@@ -362,8 +412,8 @@
             category: 'Set Up / General',
             dropdownText: 'Arrange a Call Back',
             delayDays: 0,
-            bt_template: `Hi there, It was great to speak to you today, I am really sorry for the experience you have had up to now, I want to assure you I will be calling back on`,
-            ee_template: `Hi there, It was great to speak to you today. I'm sorry for the experience you've had so far. I want to assure you I will be calling you back on`
+            bt_template: `Hi there, It was great to speak to you today, I am really sorry for the experience you have had up to now, I want to assure you I will be calling back on `,
+            ee_template: `Hi there, It was great to speak to you today. I'm sorry for the experience you've had so far. I want to assure you I will be calling you back on `
         },
         {
             id: 'great_to_speak',
@@ -439,14 +489,14 @@
                     item.addEventListener('click', () => {
                         scenarioInput.value = scenario.dropdownText;
                         selectedScenarioId = scenario.id;
-                        scenarioDropdown.style.display = 'none';
+                        scenarioDropdown.classList.remove('show');
                         generateMessage();
                     });
                     scenarioDropdown.appendChild(item);
                 });
             }
         }
-        scenarioDropdown.style.display = filteredScenarios.length > 0 ? 'block' : 'none';
+        scenarioDropdown.classList.toggle('show', filteredScenarios.length > 0);
     }
     
     // --- Function to update the theme based on brand selection ---
@@ -480,8 +530,15 @@
         
         messageOutput.value = message;
 
+        // Show/hide callback options
+        callbackOptions.classList.toggle('hidden', selectedScenarioId !== 'call_back');
+
         // Update character counter
-        const charLength = message.length;
+        updateCharCounter();
+    }
+    
+    function updateCharCounter() {
+        const charLength = messageOutput.value.length;
         const smsCount = Math.ceil(charLength / 160);
         if (charLength > 0) {
             charCounter.textContent = `${charLength} characters (${smsCount} SMS)`;
@@ -497,11 +554,32 @@
         generateMessage();
     }
 
+    function populateTimeSlots(dateString) {
+        callbackTimeInput.innerHTML = '';
+        const date = new Date(dateString + 'T00:00:00'); // Prevent timezone issues
+        const dayOfWeek = date.getDay();
+
+        let startHour = (dayOfWeek === 0) ? 9 : 8; // Sunday starts at 9, others at 8
+        const endHour = 20;
+
+        for (let hour = startHour; hour < endHour; hour++) {
+            for (let min = 0; min < 60; min += 15) {
+                const time = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+                const option = document.createElement('option');
+                option.value = time;
+                option.textContent = time;
+                callbackTimeInput.appendChild(option);
+            }
+        }
+    }
+
     // --- Event Listeners ---
     document.addEventListener('DOMContentLoaded', () => {
         updateTheme(); 
-        populateDropdown();
-        scenarioDropdown.style.display = 'none';
+        const today = new Date().toISOString().split("T")[0];
+        callbackDateInput.min = today;
+        callbackDateInput.value = today;
+        populateTimeSlots(today);
     });
 
     brandRadios.forEach(radio => radio.addEventListener('change', () => {
@@ -517,7 +595,6 @@
     scenarioInput.addEventListener('input', populateDropdown);
     
     scenarioInput.addEventListener('click', () => {
-        // If the input already has a value, clear it to allow re-selection
         if (scenarioInput.value !== '') {
             clearSelection();
         }
@@ -526,21 +603,31 @@
     
     document.addEventListener('click', (e) => {
         if (!container.contains(e.target)) {
-            scenarioDropdown.style.display = 'none';
+            scenarioDropdown.classList.remove('show');
+        }
+    });
+
+    callbackDateInput.addEventListener('change', (e) => {
+        populateTimeSlots(e.target.value);
+    });
+
+    insertDateTimeButton.addEventListener('click', () => {
+        const date = callbackDateInput.value;
+        const time = callbackTimeInput.value;
+        if (date && time) {
+            const dateObj = new Date(date + 'T00:00:00');
+            const formattedDate = dateObj.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            messageOutput.value += ` ${formattedDate} at ${time}.`;
+            updateCharCounter();
         }
     });
 
     copyButton.addEventListener('click', () => {
         if (messageOutput.value && selectedScenarioId) {
-            // The Clipboard API (navigator.clipboard.writeText) can be blocked in some environments (like iFrames).
-            // The document.execCommand('copy') is a fallback that often works in these cases.
             try {
-                // We need to make the textarea selectable to copy from it
                 messageOutput.readOnly = false;
                 messageOutput.select();
-                messageOutput.setSelectionRange(0, 99999); // For mobile devices
-
-                // Execute the copy command
+                messageOutput.setSelectionRange(0, 99999); 
                 const successful = document.execCommand('copy');
                 
                 if (successful) {
@@ -548,8 +635,6 @@
                 } else {
                     statusMessage.textContent = 'Failed to copy!';
                 }
-
-                // Deselect the text and make it readonly again
                 window.getSelection().removeAllRanges();
                 messageOutput.readOnly = true;
 
