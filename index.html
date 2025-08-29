@@ -134,33 +134,54 @@
             ee_template: `There has been a delay in progressing your EE order as we require legal permission, known as a wayleave, to install our equipment on private land. This process can be lengthy and involves multiple parties. We are working to get this approved as quickly as possible and estimate a resolution within 8 weeks. Your next formal update will be on or before {date}. Thank you for your patience.`
         },
         {
-            id: 'general_update',
-            dropdownText: 'General Progress Update',
-            delayDays: 1,
-            bt_template: `Thank you for contacting us for an update on your BT order. Your order is still progressing through our system and is currently in the planning stage. We are on track with the initial estimate provided and will notify you as soon as the work is scheduled with our engineering team. You can find more general information on the installation process here: https://care.bt.com/next_steps.`,
-            ee_template: `Thanks for getting in touch about your EE order. It's progressing as planned and we'll be in touch as soon as an engineer is scheduled. Thanks for your patience!`
+            id: 'damaged_cabinet',
+            dropdownText: 'Damaged Cabinet (12 Weeks)',
+            delayDays: 60,
+            bt_template: `Hey there, we wanted to let you know that we've identified a fault in the network, but don't worry - we've already assigned an engineer to work on getting it resolved! It's a pretty complex job, so it might take up to twelve weeks to fully fix. But don't worry, we'll be in touch with regular updates and aim to provide you with an update no later than 9 PM on {date}.\n\nPlease read this handy booklet for more detail on the work required to get you your new service: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge anywhere in the UK while you wait. This brilliant booklet will provide all the information you need: https://care.bt.com/_bt_wifi_hotspots.`,
+            ee_template: `Hi there, we wanted to let you know that we've identified a network fault affecting your EE service. We've already assigned an engineer to work on it. It's a complex job, so it might take up to twelve weeks to fully fix. We'll be in touch with regular updates and aim to provide you with an update no later than 9 PM on {date}.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
         },
         {
-            id: 'general_update_1',
-            dropdownText: 'General Progress Update 1',
-            delayDays: 1,
-            bt_template: `Thank you for contacting us for an update on your BT order. Your order is still progressing through our system and is currently in the planning stage. We are on track with the initial estimate provided and will notify you as soon as the work is scheduled with our engineering team. You can find more general information on the installation process here: https://care.bt.com/next_steps.`,
-            ee_template: `Thanks for getting in touch about your EE order. It's progressing as planned and we'll be in touch as soon as an engineer is scheduled. Thanks for your patience!`
+            id: 'damaged_pole',
+            dropdownText: 'Damaged Pole (12 Weeks)',
+            delayDays: 60,
+            bt_template: `Hey there! We've got some news to share with you - unfortunately, there's a damaged pole in our network that's causing some trouble for your property. But don't worry - we're on it! Our civils and engineering teams are already working hard to fix it up. It's a bit of a big job though, so it might take up to 12 weeks to fully resolve.\n\nWe promise to keep you updated along the way though, and we'll get in touch with another update no later than 9 PM on {date}.\n\nPlease read this handy booklet for more detail on the work required to get you your new Full Fibre service: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge anywhere in the UK while you wait. This brilliant booklet will provide all the information you need: https://care.bt.com/_bt_wifi_hotspots`,
+            ee_template: `Hi there. We've found a damaged pole in the network that's affecting your property. Our civils and engineering teams are already working to fix it. It's a big job, so it might take up to 12 weeks to fully resolve.\n\nWe promise to keep you updated, and we'll get in touch with another update no later than 9 PM on {date}.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
         },
         {
-            id: 'general_update_2',
-            dropdownText: 'General Progress Update 2',
-            delayDays: 1,
-            bt_template: `Thank you for contacting us for an update on your BT order. Your order is still progressing through our system and is currently in the planning stage. We are on track with the initial estimate provided and will notify you as soon as the work is scheduled with our engineering team. You can find more general information on the installation process here: https://care.bt.com/next_steps.`,
-            ee_template: `Thanks for getting in touch about your EE order. It's progressing as planned and we'll be in touch as soon as an engineer is scheduled. Thanks for your patience!`
+            id: 'developer_delays',
+            dropdownText: 'Developer Delays (3 Weeks)',
+            delayDays: 15,
+            bt_template: `Hey there! We just wanted to let you know that there's been a bit of a delay with your order, and we're really sorry for any inconvenience this might cause. It turns out that the developer of your property is experiencing some delays, but don't worry - our suppliers are already working closely with them to get this issue sorted as quickly as possible! Unfortunately, it might take up to 3 weeks to fully resolve.\n\nWe'll be sure to keep you updated along the way though, and we'll get in touch with another update no later than 9 PM on {date}.`,
+            ee_template: `Hi there. We wanted to let you know that there's been a delay with your order. It appears the developer of your property is experiencing some delays, but our suppliers are working closely with them to get this sorted. It might take up to 3 weeks to resolve.\n\nWe'll keep you updated and will get in touch with another update no later than 9 PM on {date}. We're sorry for the inconvenience.`
         },
         {
-            id: 'general_update_3',
-            dropdownText: 'General Progress Update 3',
-            delayDays: 1,
-            bt_template: `Thank you for contacting us for an update on your BT order. Your order is still progressing through our system and is currently in the planning stage. We are on track with the initial estimate provided and will notify you as soon as the work is scheduled with our engineering team. You can find more general information on the installation process here: https://care.bt.com/next_steps.`,
-            ee_template: `Thanks for getting in touch about your EE order. It's progressing as planned and we'll be in touch as soon as an engineer is scheduled. Thanks for your patience!`
+            id: 'duct_cable_stock',
+            dropdownText: 'Duct and Cable Stock (3 Weeks)',
+            delayDays: 15,
+            bt_template: `Hey there! We just wanted to give you a quick update on your fibre order. Unfortunately, there's currently a shortage of the equipment that we need to get it completed. We're really sorry for any inconvenience this may cause! But don't worry - our suppliers are already on it, and they're working hard to get this issue sorted out as quickly as possible. It might take up to 3 weeks to fully resolve, but we promise to keep you updated along the way! We'll get in touch with another update no later than 9 PM on {date}.`,
+            ee_template: `Hi there. A quick update on your fibre order: there's currently a shortage of some equipment we need. We're sorry for the inconvenience. Our suppliers are working hard to get this sorted. It might take up to 3 weeks to resolve, but we promise to keep you updated. We'll get in touch with another update no later than 9 PM on {date}.`
         },
+        {
+            id: 'e_d_side_fault',
+            dropdownText: 'E-side or D-side Fault (20 Days)',
+            delayDays: 20,
+            bt_template: `Hey there! We've got some news to share with you about our network. Unfortunately, there's a fault that we're working hard to resolve with the help of our expert engineers! It might take a little bit of time - up to 20 days, in fact - but we promise to do everything we can to get it sorted as quickly as possible. We'll be sure to keep you updated along the way, and we'll get in touch with another update by 9 PM on {date}.`,
+            ee_template: `Hi there. We've found a fault in the network which our expert engineers are working hard to resolve. It might take up to 20 days, but we promise to get it sorted as quickly as possible. We'll keep you updated and will get in touch with another update by 9 PM on {date}.`
+        },
+        {
+            id: 'hoist_availability',
+            dropdownText: 'Hoist Availability (3 Weeks)',
+            delayDays: 15,
+            bt_template: `Hey there! We just wanted to give you a quick update on your installation. It looks like the hoists we need to get the job done are in pretty high demand right now. But don't worry - we're on it! Our team is working hard to source one as soon as possible, though it might take up to three weeks to get our hands on it. We'll be sure to keep you in the loop every step of the way, and we'll get in touch with another update no later than 9 PM on {date}.`,
+            ee_template: `Hi there. A quick update on your installation: the hoists we need are in high demand right now. Our team is working hard to source one as soon as possible, though it might take up to three weeks. We'll keep you in the loop and will get in touch with another update no later than 9 PM on {date}.`
+        },
+        {
+            id: 'no_capacity',
+            dropdownText: 'No Capacity Available (12 Weeks)',
+            delayDays: 60,
+            bt_template: `Hey there! We wanted to give you a quick update about your order. Unfortunately, there's a bit of a capacity issue in your area that's causing some delays. But no worries! We're already on top of it and working closely with our suppliers to build in more capacity, so you can enjoy all the benefits of high-speed fibre. It's a bit of a big job, so it might take up to 12 weeks to complete, but we'll be sure to keep you posted every step of the way. We'll send you another update by 9 PM on {date}.`,
+            ee_template: `Hi there. We wanted to give you an update on your order. Unfortunately, there's a capacity issue in your area causing some delays. We're working closely with our suppliers to build more capacity. It's a big job and might take up to 12 weeks to complete, but we'll keep you posted. We'll send you another update by 9 PM on {date}.`
+        }
     ];
 
     // --- Helper function to format a date as dd/mm/yyyy ---
@@ -186,6 +207,9 @@
     
     // --- Function to populate the dropdown menu ---
     function populateDropdown() {
+        // Sort scenarios alphabetically by dropdownText
+        scenarios.sort((a, b) => a.dropdownText.localeCompare(b.dropdownText));
+
         scenarioSelect.innerHTML = `<option value="" selected disabled>-- Please choose a reason --</option>`;
         scenarios.forEach(scenario => {
             const option = document.createElement('option');
@@ -236,9 +260,4 @@
 </script>
 
 </body>
-
 </html>
-
-
-
-
