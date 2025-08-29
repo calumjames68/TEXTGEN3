@@ -51,7 +51,7 @@
             color: #3b4d61;
             margin-bottom: 8px;
         }
-        select, textarea {
+        select, textarea, input[type="text"] {
             width: 100%;
             padding: 12px;
             border: 1px solid #dbe2e8;
@@ -59,7 +59,6 @@
             font-size: 16px;
             box-sizing: border-box;
         }
-        select { background-color: #fcfdff; cursor: pointer; }
         textarea { margin-top: 20px; height: 300px; resize: vertical; background-color: #f8f9fa; }
         button {
             display: block;
@@ -87,6 +86,42 @@
             transition: background-color 0.2s, color 0.2s;
         }
         .filter-selector input[type="radio"] { display: none; }
+        #charCounter {
+            text-align: right;
+            color: #555;
+            font-size: 14px;
+            margin-top: 5px;
+            height: auto;
+        }
+
+        /* --- Custom Search/Select Input --- */
+        .custom-select-container {
+            position: relative;
+        }
+        .scenario-dropdown {
+            display: none;
+            position: absolute;
+            background-color: #f6f6f6;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            z-index: 1;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .scenario-dropdown div {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: block;
+        }
+        .scenario-dropdown div:hover { background-color: #e9e9e9; }
+        .scenario-dropdown .category-label {
+            font-weight: bold;
+            padding: 10px 16px 5px;
+            color: #555;
+            font-size: 14px;
+            background-color: #f0f0f0;
+        }
 
         /* --- Theme Styling --- */
         .theme-bt button { background-color: var(--bt-primary); }
@@ -135,12 +170,14 @@
             <label for="catSetUps">Set Ups</label>
         </div>
 
-        <label for="scenario">Select post text:</label>
-        <select id="scenario">
-            <!-- Scenarios will be loaded here by JavaScript -->
-        </select>
+        <label for="scenarioInput">Select post text:</label>
+        <div class="custom-select-container">
+            <input type="text" id="scenarioInput" placeholder="Type or click to select...">
+            <div id="scenarioDropdown" class="scenario-dropdown"></div>
+        </div>
 
         <textarea id="messageOutput" readonly placeholder="Your generated message will appear here..."></textarea>
+        <div id="charCounter"></div>
         
         <button id="copyButton">Copy Message</button>
         <div id="statusMessage" class="status"></div>
@@ -148,12 +185,16 @@
 
 <script>
     const container = document.querySelector('.container');
-    const scenarioSelect = document.getElementById('scenario');
     const messageOutput = document.getElementById('messageOutput');
     const copyButton = document.getElementById('copyButton');
     const statusMessage = document.getElementById('statusMessage');
     const brandRadios = document.querySelectorAll('input[name="brand"]');
     const categoryRadios = document.querySelectorAll('input[name="category"]');
+    const scenarioInput = document.getElementById('scenarioInput');
+    const scenarioDropdown = document.getElementById('scenarioDropdown');
+    const charCounter = document.getElementById('charCounter');
+
+    let selectedScenarioId = null;
 
     // --- All scenarios are now stored here, inside the script ---
     const scenarios = [
@@ -319,13 +360,13 @@
     // --- Function to populate the dropdown menu ---
     function populateDropdown() {
         const selectedCategory = document.querySelector('input[name="category"]:checked').value;
+        const searchTerm = scenarioInput.value.toLowerCase();
 
-        // Filter scenarios based on the selected category
+        // Filter scenarios based on category and search term
         const filteredScenarios = scenarios.filter(scenario => {
-            if (selectedCategory === 'All') {
-                return true;
-            }
-            return scenario.category === selectedCategory;
+            const categoryMatch = selectedCategory === 'All' || scenario.category === selectedCategory;
+            const searchMatch = scenario.dropdownText.toLowerCase().includes(searchTerm);
+            return categoryMatch && searchMatch;
         });
 
         // Sort the filtered scenarios alphabetically
@@ -341,28 +382,32 @@
             return acc;
         }, {});
 
-        scenarioSelect.innerHTML = `<option value="" selected disabled>-- Please choose a reason --</option>`;
+        scenarioDropdown.innerHTML = '';
         
-        // Create optgroups for each category
-        const categoriesToShow = selectedCategory === 'All' ? Object.keys(groupedScenarios) : [selectedCategory];
+        const categoriesToShow = selectedCategory === 'All' ? Object.keys(groupedScenarios).sort() : [selectedCategory];
 
         for (const category of categoriesToShow) {
-            if (groupedScenarios[category]) {
-                const optgroup = document.createElement('optgroup');
-                optgroup.label = category;
+            if (groupedScenarios[category] && groupedScenarios[category].length > 0) {
+                const optgroup = document.createElement('div');
+                optgroup.className = 'category-label';
+                optgroup.textContent = category;
+                scenarioDropdown.appendChild(optgroup);
                 
                 groupedScenarios[category].forEach(scenario => {
-                    const option = document.createElement('option');
-                    option.value = scenario.id;
-                    option.textContent = scenario.dropdownText;
-                    optgroup.appendChild(option);
+                    const item = document.createElement('div');
+                    item.textContent = scenario.dropdownText;
+                    item.dataset.id = scenario.id;
+                    item.addEventListener('click', () => {
+                        scenarioInput.value = scenario.dropdownText;
+                        selectedScenarioId = scenario.id;
+                        scenarioDropdown.style.display = 'none';
+                        generateMessage();
+                    });
+                    scenarioDropdown.appendChild(item);
                 });
-                
-                scenarioSelect.appendChild(optgroup);
             }
         }
-
-        generateMessage(); // Clear the textarea
+        scenarioDropdown.style.display = filteredScenarios.length > 0 ? 'block' : 'none';
     }
     
     // --- Function to update the theme based on brand selection ---
@@ -380,30 +425,37 @@
     // --- Main function to generate the message ---
     function generateMessage() {
         const selectedBrand = document.querySelector('input[name="brand"]:checked').value;
-        const selectedId = scenarioSelect.value;
-        const selectedScenario = scenarios.find(s => s.id === selectedId);
+        const selectedScenario = scenarios.find(s => s.id === selectedScenarioId);
 
-        if (!selectedScenario) {
-            messageOutput.value = '';
-            return;
-        }
-
-        const calculatedDate = formatDate(calculateWorkday(selectedScenario.delayDays));
-        const template = selectedBrand === 'BT' ? selectedScenario.bt_template : selectedScenario.ee_template;
-        
-        let message = template;
-        // Only replace date if the placeholder exists and delayDays is not 0
-        if (selectedScenario.delayDays > 0 && template.includes('{date}')) {
-             message = template.replace(/{date}/g, calculatedDate);
+        let message = '';
+        if (selectedScenario) {
+            const calculatedDate = formatDate(calculateWorkday(selectedScenario.delayDays));
+            const template = selectedBrand === 'BT' ? selectedScenario.bt_template : selectedScenario.ee_template;
+            
+            if (selectedScenario.delayDays > 0 && template.includes('{date}')) {
+                 message = template.replace(/{date}/g, calculatedDate);
+            } else {
+                message = template;
+            }
         }
         
         messageOutput.value = message;
+
+        // Update character counter
+        const charLength = message.length;
+        const smsCount = Math.ceil(charLength / 160);
+        if (charLength > 0) {
+            charCounter.textContent = `${charLength} characters (${smsCount} SMS)`;
+        } else {
+            charCounter.textContent = '';
+        }
     }
 
     // --- Event Listeners ---
     document.addEventListener('DOMContentLoaded', () => {
+        updateTheme(); 
         populateDropdown();
-        updateTheme(); // Set initial theme
+        scenarioDropdown.style.display = 'none';
     });
 
     brandRadios.forEach(radio => radio.addEventListener('change', () => {
@@ -413,10 +465,17 @@
     
     categoryRadios.forEach(radio => radio.addEventListener('change', populateDropdown));
     
-    scenarioSelect.addEventListener('change', generateMessage);
+    scenarioInput.addEventListener('input', populateDropdown);
+    scenarioInput.addEventListener('focus', populateDropdown);
+    
+    document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+            scenarioDropdown.style.display = 'none';
+        }
+    });
 
     copyButton.addEventListener('click', () => {
-        if (messageOutput.value && scenarioSelect.value) {
+        if (messageOutput.value && selectedScenarioId) {
             navigator.clipboard.writeText(messageOutput.value)
                 .then(() => {
                     statusMessage.textContent = 'Message copied to clipboard!';
