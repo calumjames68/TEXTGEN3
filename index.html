@@ -93,6 +93,18 @@
             margin-top: 5px;
             height: auto;
         }
+        .feedback-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .feedback-text a {
+            text-decoration: none;
+        }
+        .feedback-text a:hover {
+            text-decoration: underline;
+        }
 
         /* --- Custom Search/Select Input --- */
         .custom-select-container {
@@ -129,12 +141,14 @@
         .theme-bt .filter-selector input[type="radio"]:checked + label { background-color: var(--bt-primary); color: white; }
         .theme-bt #logo-ee { display: none; }
         .theme-bt #logo-bt { display: block; }
+        .theme-bt .feedback-text a { color: var(--bt-primary); }
 
         .theme-ee button { background-color: var(--ee-primary); }
         .theme-ee button:hover { background-color: var(--ee-primary-hover); }
         .theme-ee .filter-selector input[type="radio"]:checked + label { background-color: var(--ee-primary); color: white; }
         .theme-ee #logo-bt { display: none; }
         .theme-ee #logo-ee { display: block; }
+        .theme-ee .feedback-text a { color: var(--ee-primary); }
 
     </style>
 </head>
@@ -181,6 +195,7 @@
         
         <button id="copyButton">Copy Message</button>
         <div id="statusMessage" class="status"></div>
+        <p class="feedback-text">Any feedback is welcome, please email me: <a href="mailto:calumbarnes@ee.co.uk">calumbarnes@ee.co.uk</a></p>
     </div>
 
 <script>
@@ -491,4 +506,4 @@
 </script>
 
 </body>
-</html>
+</ht
