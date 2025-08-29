@@ -180,8 +180,8 @@
             <label for="catAll">All</label>
             <input type="radio" id="catDelays" name="category" value="Delays">
             <label for="catDelays">Delays</label>
-            <input type="radio" id="catSetUps" name="category" value="Set Ups">
-            <label for="catSetUps">Set Ups</label>
+            <input type="radio" id="catSetUps" name="category" value="Set Up / General">
+            <label for="catSetUps">Set Up / General</label>
         </div>
 
         <label for="scenarioInput">Select post text:</label>
@@ -335,19 +335,43 @@
         },
         {
             id: 'smart_hub_setup',
-            category: 'Set Ups',
+            category: 'Set Up / General',
             dropdownText: 'Smart Hub Set Up Guide',
             delayDays: 0,
             bt_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new BT Smart Hub. This guide will walk you through everything you need to know to get started and enjoy your superfast internet services as soon as they're connected. Check it out here:\n\nhttps://www.bt.com/help/home/broadband/set-up/bt-smart-hub-how-to-set-up\n\nLet me know if you have any questions or if there's anything else I can assist you with.`,
-            ee_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new EE Smart Hub. This guide will walk you through everything you need to know to get started. Check it out here:\n\https://ee.co.uk/help/broadband/getting-started/set-up-guide\n\nLet me know if you have any questions.`
+            ee_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new EE Smart Hub. This guide will walk you through everything you need to know to get started. Check it out here:\n\nhttps://ee.co.uk/help/broadband/getting-started/setting-up-your-smart-hub\n\nLet me know if you have any questions.`
         },
         {
             id: 'mini_hub_setup',
-            category: 'Set Ups',
+            category: 'Set Up / General',
             dropdownText: 'Mini Hub Set Up Guide',
             delayDays: 0,
             bt_template: `Hello there! It was great speaking with you today. I'm sorry to hear about the delay in your fiber installation, but we have good news. We have placed an order for one of our 4G mini hubs for you. Once you receive it, please follow this helpful guide on how to use it. It will keep you connected while you wait for your fiber installation. Plus, it has unlimited data so you can continue using it worry-free!\n\nHere's the link to the guide: http://bt.custhelp.com/app/answers/detail/a_id/63196/related/1`,
             ee_template: `Hello there! It was great speaking with you today. I'm sorry to hear about the delay in your fiber installation. We have good news: we've ordered a 4G mini hub for you. Once you receive it, this guide shows you how to use it to stay connected with unlimited data while you wait.\n\nHere's the link to the guide: https://ee.co.uk/help/mobile/get-started/smart-benefits/what-is-the-4g-mini-hub-and-how-do-i-use-it`
+        },
+        {
+            id: 'download_app',
+            category: 'Set Up / General',
+            dropdownText: 'Download the App Guide',
+            delayDays: 0,
+            bt_template: `Hi there! It was great speaking with you today. In case you weren't already aware, you can download our handy MyBT app, which allows you to easily manage your BT account. With this app, you can track orders, view your bills, and even run tests on your connection to ensure you're getting the most out of your BT services.\n\nHere's the link to download the app: https://home.bt.com/tech-gadgets/internet/manage-your-bt-account-quickly-and-easily-with-the-new-my-bt-app-11363997056591.`,
+            ee_template: `Hi there! It was great speaking with you today. You can easily manage your EE account with our handy My EE app. With the app, you can track orders, view your bills, and check your connection status.\n\nHere's the link to download the app: https://ee.co.uk/myee/app`
+        },
+        {
+            id: 'call_back',
+            category: 'Set Up / General',
+            dropdownText: 'Arrange a Call Back',
+            delayDays: 0,
+            bt_template: `Hi there, It was great to speak to you today, I am really sorry for the experience you have had up to now, I want to assure you I will be calling back on`,
+            ee_template: `Hi there, It was great to speak to you today. I'm sorry for the experience you've had so far. I want to assure you I will be calling you back on`
+        },
+        {
+            id: 'great_to_speak',
+            category: 'Set Up / General',
+            dropdownText: 'Great to Speak to You Follow-up',
+            delayDays: 0,
+            bt_template: `Hi there, It was great to speak to you today, and I hope everything is sorted now for you. You can also manage your account on BT.com or using the MyBT app on your Iphone or Android mobile. To get more information about it just follow this handy link http://bt.custhelp.com/app/answers/detail/a_id/53804/~/how-to-use-the-my-bt-app`,
+            ee_template: `Hi there, It was great to speak to you today, and I hope everything is sorted for you now. You can also manage your account on EE.co.uk or using the My EE app on your mobile. You can find more information here: https://ee.co.uk/myee/app`
         }
     ];
 
@@ -542,4 +566,3 @@
 
 </body>
 </html>
-
