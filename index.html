@@ -232,7 +232,7 @@
             <input type="date" id="delayStartDate">
         </div>
         
-        <textarea id="messageOutput" readonly placeholder="Your generated message will appear here..."></textarea>
+        <textarea id="messageOutput" placeholder="Your generated message will appear here..."></textarea>
         <div id="charCounter"></div>
 
         <div id="callback-options" class="contextual-options hidden">
@@ -653,7 +653,6 @@
     copyButton.addEventListener('click', () => {
         if (messageOutput.value && selectedScenarioId) {
             try {
-                messageOutput.readOnly = false;
                 messageOutput.select();
                 messageOutput.setSelectionRange(0, 99999); 
                 const successful = document.execCommand('copy');
@@ -664,7 +663,6 @@
                     statusMessage.textContent = 'Failed to copy!';
                 }
                 window.getSelection().removeAllRanges();
-                messageOutput.readOnly = true;
 
             } catch (err) {
                 statusMessage.textContent = 'Failed to copy!';
@@ -674,8 +672,12 @@
             }
         }
     });
+    
+    // Update counter when user types in the textarea
+    messageOutput.addEventListener('input', updateCharCounter);
 
 </script>
 
 </body>
 </html>
+
