@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post Text Generator</title>
+    <title>BT & EE Text Generator</title>
     <style>
         :root {
             --bt-primary: #6200EE;
@@ -29,10 +29,6 @@
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: box-shadow 0.3s ease;
-        }
-        .container:hover {
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
         }
         .logo-container {
             text-align: center;
@@ -63,7 +59,7 @@
             font-size: 16px;
             box-sizing: border-box;
         }
-        textarea { margin-top: 10px; height: 280px; resize: vertical; background-color: #f8f9fa; }
+        textarea { margin-top: 10px; height: 180px; resize: vertical; background-color: #f8f9fa; }
         button {
             display: block;
             width: 100%;
@@ -83,7 +79,7 @@
         }
         .status { text-align: center; margin-top: 15px; color: #28a745; font-weight: 500; height: 20px; }
         .filter-selector { display: flex; justify-content: center; margin-bottom: 15px; border: 1px solid #dbe2e8; border-radius: 6px; overflow: hidden; }
-        .filter-selector label {
+        .filter-selector label, .filter-selector .button-like {
             flex: 1;
             text-align: center;
             padding: 12px;
@@ -92,32 +88,37 @@
             background-color: #f8f9fa;
             color: #555;
             transition: background-color 0.2s, color 0.2s;
+            border: none;
+            font-size: 16px;
+            font-family: inherit;
         }
         .filter-selector input[type="radio"] { display: none; }
-        #charCounter {
-            text-align: right;
-            color: #555;
-            font-size: 14px;
-            margin-top: 5px;
-            height: auto;
+        .filter-selector input[type="radio"]:checked + label { color: white; }
+        
+        #charCounter { text-align: right; color: #555; font-size: 14px; margin-top: 5px; height: auto; }
+        .feedback-text { text-align: center; margin-top: 20px; font-size: 14px; color: #6c757d; }
+        .feedback-text a { text-decoration: none; }
+        .feedback-text a:hover { text-decoration: underline; }
+        .hidden { display: none; }
+
+        /* --- Step Styling --- */
+        .step-container { margin-bottom: 15px; }
+        .step-summary {
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .feedback-text {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #6c757d;
+        .step-summary:hover {
+             transform: translateY(-1px);
+             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
-        .feedback-text a {
-            text-decoration: none;
-        }
-        .feedback-text a:hover {
-            text-decoration: underline;
-        }
+        .step-summary span { font-weight: normal; opacity: 0.9; }
 
         /* --- Custom Search/Select Input --- */
-        .custom-select-container {
-            position: relative;
-        }
+        .custom-select-container { position: relative; }
         .scenario-dropdown {
             display: none;
             position: absolute;
@@ -128,587 +129,486 @@
             z-index: 1;
             max-height: 250px;
             overflow-y: auto;
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
         }
-        .scenario-dropdown.show {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .scenario-dropdown div {
-            padding: 12px 16px;
-            cursor: pointer;
-            display: block;
-        }
+        .scenario-dropdown.show { display: block; }
+        .scenario-dropdown div { padding: 12px 16px; cursor: pointer; display: block; }
         .scenario-dropdown div:hover { background-color: #e9e9e9; }
         .scenario-dropdown .category-label {
-            font-weight: bold;
-            padding: 10px 16px 5px;
-            color: #555;
-            font-size: 14px;
-            background-color: #f0f0f0;
+            font-weight: bold; padding: 10px 16px 5px; color: #555;
+            font-size: 14px; background-color: #f0f0f0;
         }
-        
+
         /* --- Contextual Options --- */
-        .hidden {
-            display: none;
-        }
-        .contextual-options {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            border: 1px solid #dbe2e8;
-        }
-        .datetime-inputs {
-            display: flex;
-            gap: 10px;
-        }
-        .contextual-options button {
-            margin-top: 10px;
-            padding: 10px;
-            font-size: 14px;
-        }
+        .contextual-options { margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 6px; border: 1px solid #dbe2e8; }
+        .datetime-inputs { display: flex; gap: 10px; }
+        .contextual-options button { margin-top: 10px; padding: 10px; font-size: 14px; }
 
         /* --- Theme Styling --- */
         .theme-bt button { background-color: var(--bt-primary); }
         .theme-bt button:hover { background-color: var(--bt-primary-hover); }
-        .theme-bt .filter-selector input[type="radio"]:checked + label { background-color: var(--bt-primary); color: white; }
-        .theme-bt #logo-ee { display: none; }
-        .theme-bt #logo-bt { display: block; }
+        .theme-bt .filter-selector input[type="radio"]:checked + label { background-color: var(--bt-primary); }
+        .theme-bt .step-summary { background-color: var(--bt-primary); }
+        .theme-bt #logo-ee, .theme-bt.container #logo-ee { display: none; }
+        .theme-bt #logo-bt, .theme-bt.container #logo-bt { display: block; }
         .theme-bt .feedback-text a { color: var(--bt-primary); }
 
         .theme-ee button { background-color: var(--ee-primary); }
         .theme-ee button:hover { background-color: var(--ee-primary-hover); }
-        .theme-ee .filter-selector input[type="radio"]:checked + label { background-color: var(--ee-primary); color: white; }
-        .theme-ee #logo-bt { display: none; }
-        .theme-ee #logo-ee { display: block; }
+        .theme-ee .filter-selector input[type="radio"]:checked + label { background-color: var(--ee-primary); }
+        .theme-ee .step-summary { background-color: var(--ee-primary); }
+        .theme-ee #logo-bt, .theme-ee.container #logo-bt { display: none; }
+        .theme-ee #logo-ee, .theme-ee.container #logo-ee { display: block; }
         .theme-ee .feedback-text a { color: var(--ee-primary); }
-
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div id="appContainer" class="container">
         <div class="logo-container">
-            <!-- NEW BT Logo SVG -->
             <svg id="logo-bt" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="var(--bt-primary)">
                 <circle cx="50" cy="50" r="48" stroke="currentColor" stroke-width="4" fill="none"/>
                 <text x="50" y="68" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="bold" text-anchor="middle" fill="currentColor">BT</text>
             </svg>
-            <!-- NEW EE Logo SVG -->
             <svg id="logo-ee" viewBox="0 0 80 40" xmlns="http://www.w3.org/2000/svg" fill="var(--ee-primary)">
                 <text x="0" y="32" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="bold" fill="currentColor">EE</text>
             </svg>
         </div>
-        <h1>Post Text Generator</h1>
+        <h1>Text Generator</h1>
 
-        <div class="filter-selector">
-            <input type="radio" id="brandBT" name="brand" value="BT" checked>
-            <label for="brandBT">BT</label>
-            <input type="radio" id="brandEE" name="brand" value="EE">
-            <label for="brandEE">EE</label>
-        </div>
-
-        <div class="filter-selector">
-            <input type="radio" id="catAll" name="category" value="All" checked>
-            <label for="catAll">All</label>
-            <input type="radio" id="catDelays" name="category" value="Delays">
-            <label for="catDelays">Delays</label>
-            <input type="radio" id="catSetUps" name="category" value="Set Up / General">
-            <label for="catSetUps">Set Up / General</label>
-        </div>
-
-        <div class="filter-selector">
-            <input type="radio" id="contactYes" name="contactStatus" value="Yes" checked>
-            <label for="contactYes">Contact Made</label>
-            <input type="radio" id="contactNo" name="contactStatus" value="No">
-            <label for="contactNo">No Contact</label>
-        </div>
-
-        <label for="scenarioInput">Select post text:</label>
-        <div class="custom-select-container">
-            <input type="text" id="scenarioInput" placeholder="Type or click to select...">
-            <div id="scenarioDropdown" class="scenario-dropdown"></div>
-        </div>
-
-        <div id="delay-options" class="contextual-options hidden">
-            <label for="delayStartDate">Delay Identified On:</label>
-            <input type="date" id="delayStartDate">
-        </div>
-        
-        <textarea id="messageOutput" placeholder="Your generated message will appear here..."></textarea>
-        <div id="charCounter"></div>
-
-        <div id="callback-options" class="contextual-options hidden">
-            <label>Select Date and Time for Callback:</label>
-            <div class="datetime-inputs">
-                <input type="date" id="callbackDate">
-                <select id="callbackTime"></select>
+        <!-- Step 1: Brand -->
+        <div id="step-brand" class="step-container">
+            <div id="summary-brand" class="step-summary hidden"></div>
+            <div id="content-brand" class="step-content">
+                 <label>Select a brand:</label>
+                <div class="filter-selector">
+                    <input type="radio" id="brandBT" name="brand" value="BT">
+                    <label for="brandBT">BT</label>
+                    <input type="radio" id="brandEE" name="brand" value="EE">
+                    <label for="brandEE">EE</label>
+                </div>
             </div>
-            <button id="insertDateTime">Insert Date & Time</button>
+        </div>
+
+        <!-- Step 2: Pre-Text or Post-Text -->
+        <div id="step-type" class="step-container hidden">
+            <div id="summary-type" class="step-summary hidden"></div>
+            <div id="content-type" class="step-content">
+                <label>What type of message are you sending?</label>
+                <div class="filter-selector">
+                    <input type="radio" id="typePre" name="type" value="pre">
+                    <label for="typePre">Pre-Text</label>
+                    <input type="radio" id="typePost" name="type" value="post">
+                    <label for="typePost">Post-Text</label>
+                </div>
+            </div>
         </div>
         
-        <button id="copyButton">Copy Message</button>
-        <div id="statusMessage" class="status"></div>
+        <!-- Step 3: Post-Text Category -->
+        <div id="step-category" class="step-container hidden">
+            <div id="summary-category" class="step-summary hidden"></div>
+            <div id="content-category" class="step-content">
+                 <label>Select a category:</label>
+                <div class="filter-selector">
+                    <input type="radio" id="catAll" name="category" value="All">
+                    <label for="catAll">All</label>
+                    <input type="radio" id="catDelays" name="category" value="Delays">
+                    <label for="catDelays">Delays</label>
+                    <input type="radio" id="catSetUps" name="category" value="Set Up / General">
+                    <label for="catSetUps">Set Up / General</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Post-Text Contact Status -->
+        <div id="step-contact" class="step-container hidden">
+            <div id="summary-contact" class="step-summary hidden"></div>
+            <div id="content-contact" class="step-content">
+                 <label>Was contact made with the customer?</label>
+                <div class="filter-selector">
+                    <input type="radio" id="contactYes" name="contactStatus" value="Yes">
+                    <label for="contactYes">Contact Made</label>
+                    <input type="radio" id="contactNo" name="contactStatus" value="No">
+                    <label for="contactNo">No Contact</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Final Step: Scenario Selection & Output -->
+        <div id="step-scenario" class="hidden">
+            <label for="scenarioInput">Select a message template:</label>
+            <div class="custom-select-container">
+                <input type="text" id="scenarioInput" placeholder="Type or click to select...">
+                <div id="scenarioDropdown" class="scenario-dropdown"></div>
+            </div>
+
+            <div id="delay-options" class="contextual-options hidden">
+                <label for="delayStartDate">Delay Identified On:</label>
+                <input type="date" id="delayStartDate">
+            </div>
+            
+            <textarea id="messageOutput" placeholder="Your generated message will appear here..."></textarea>
+            <div id="charCounter"></div>
+
+            <div id="callback-options" class="contextual-options hidden">
+                <label>Select Date and Time for Callback:</label>
+                <div class="datetime-inputs">
+                    <input type="date" id="callbackDate">
+                    <select id="callbackTime"></select>
+                </div>
+                <button id="insertDateTime">Insert Date & Time</button>
+            </div>
+            
+            <button id="copyButton">Copy Message</button>
+            <div id="statusMessage" class="status"></div>
+        </div>
+        
         <p class="feedback-text">Any feedback is welcome, please email me: <a href="mailto:calumbarnes@ee.co.uk">calumbarnes@ee.co.uk</a></p>
     </div>
 
 <script>
-    // --- Get references to all the interactive elements on the page ---
-    const container = document.querySelector('.container');
+    // --- DATA STORE ---
+    const scenarios = {
+        pre: [
+            { id: 'general_call', dropdownText: 'General Account Call', bt_template: `regarding your account. I'll try calling you in the next few minutes from an 0800 number.`, ee_template: `regarding your account. I'll try calling you in the next few minutes from an 0800 number.` },
+            { id: 'order_issue', dropdownText: 'Issue With Order', bt_template: `we need to discuss an issue with your recent order. I'll be calling you shortly from an 0800 number to go over the details.`, ee_template: `we need to discuss an issue with your recent order. I'll be calling you shortly from an 0800 number to go over the details.` },
+            { id: 'order_update', dropdownText: 'Order Progress Update', bt_template: `I'm calling to provide a progress update on your order. I'll try your number in the next few minutes from an 0800 number.`, ee_template: `I'm calling to provide a progress update on your order. I'll try your number in the next few minutes from an 0800 number.` },
+            { id: 'engineer_booking', dropdownText: 'Book Engineer Visit', bt_template: `I'm calling to book in your engineer appointment to get your new service installed. I'll call you in the next few minutes from an 0800 number.`, ee_template: `I'm calling to book in your engineer appointment to get your new service installed. I'll call you in the next few minutes from an 0800 number.` },
+            { id: 'engineer_reminder', dropdownText: 'Engineer Appointment Reminder', bt_template: `I'm calling with a quick reminder about your scheduled engineer visit. I'll be calling shortly from an 0800 number to confirm the details and answer any questions.`, ee_template: `I'm calling with a quick reminder about your scheduled engineer visit. I'll be calling shortly from an 0800 number to confirm the details and answer any questions.` },
+            { id: 'query_follow_up', dropdownText: 'Follow Up On A Query', bt_template: `I'm following up on your recent query. I will be calling you shortly from an 0800 number to discuss this further.`, ee_template: `I'm following up on your recent query. I will be calling you shortly from an 0800 number to discuss this further.` },
+            { id: 'complaint_follow_up', dropdownText: 'Follow Up On A Complaint', bt_template: `regarding your recent complaint. I will be calling you in the next few minutes from an 0800 number to discuss how we can resolve this for you.`, ee_template: `regarding your recent complaint. I will be calling you in the next few minutes from an 0800 number to discuss how we can resolve this for you.` }
+        ],
+        post: [
+            { id: 'ducting_issue', category: 'Delays', dropdownText: 'External Ducting Issue (12 Weeks)', delayDays: 60, bt_template: `We're sorry to let you know that there are some issues with the external ducting for your BT service, but don't worry - we've already tasked our contractors with sorting it out! It's quite a complex job, so we're estimating it may take up to 12 weeks to fully resolve.\n\nHowever, we promise to keep you updated along the way and aim to provide you with an update no later than 9 PM on the {date}.\n\nYou can find a helpful booklet here: https://care.bt.com/next_steps`, ee_template: `We've hit a snag with some external ducting work for your new EE Full Fibre service. It's a tricky issue that our network partners are working to resolve. We expect this to be sorted within 12 weeks.\n\nYour next update will be scheduled for {date}. We're sorry for the delay and appreciate your patience.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm` },
+            { id: 'engineer_shortage', category: 'Delays', dropdownText: 'Engineer Shortage (4 Weeks)', delayDays: 20, bt_template: `We're writing to inform you of a slight delay to your BT installation due to an unexpected regional shortage of specialist engineers. We are actively reallocating resources and expect to have an engineer with you within 4 weeks. We will provide a confirmed installation date no later than {date}. We sincerely apologize for the inconvenience this may cause.`, ee_template: `We're writing to inform you of a slight delay to your EE installation due to an unexpected regional shortage of specialist engineers. We are actively reallocating resources and expect to have an engineer with you within 4 weeks. We will provide a confirmed installation date no later than {date}. We sincerely apologize for the inconvenience this may cause.` },
+            { id: 'wayleave_delay', category: 'Delays', dropdownText: 'Wayleave/Permit Delay (8 Weeks)', delayDays: 40, bt_template: `There has been a delay in progressing your BT order as we require legal permission, known as a wayleave, to install our equipment on private land. This process can be lengthy and involves multiple parties. We are working to get this approved as quickly as possible and estimate a resolution within 8 weeks. Your next formal update will be on or before {date}. Thank you for your patience.`, ee_template: `There has been a delay in progressing your EE order as we require legal permission, known as a wayleave, to install our equipment on private land. This process can be lengthy and involves multiple parties. We are working to get this approved as quickly as possible and estimate a resolution within 8 weeks. Your next formal update will be on or before {date}. Thank you for your patience.` },
+            { id: 'damaged_cabinet', category: 'Delays', dropdownText: 'Damaged Cabinet (12 Weeks)', delayDays: 60, bt_template: `Hey there, we wanted to let you know that we've identified a fault in the network, but don't worry - we've already assigned an engineer to work on getting it resolved! It's a pretty complex job, so it might take up to twelve weeks to fully fix. But don't worry, we'll be in touch with regular updates and aim to provide you with an update no later than 9 PM on {date}.\n\nPlease read this handy booklet for more detail on the work required to get you your new service: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge anywhere in the UK while you wait. This brilliant booklet will provide all the information you need: https://care.bt.com/_bt_wifi_hotspots`, ee_template: `Hi there, we wanted to let you know that we've identified a network fault affecting your EE service. We've already assigned an engineer to work on it. It's a complex job, so it might take up to twelve weeks to fully fix. We'll be in touch with regular updates and aim to provide you with an update no later than 9 PM on {date}.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm` },
+            { id: 'damaged_pole', category: 'Delays', dropdownText: 'Damaged Pole (12 Weeks)', delayDays: 60, bt_template: `Hey there! We've got some news to share with you - unfortunately, there's a damaged pole in our network that's causing some trouble for your property. But don't worry - we're on it! Our civils and engineering teams are already working hard to fix it up. It's a bit of a big job though, so it might take up to 12 weeks to fully resolve.\n\nWe promise to keep you updated along the way though, and we'll get in touch with another update no later than 9 PM on {date}.\n\nPlease read this handy booklet for more detail on the work required to get you your new Full Fibre service: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge anywhere in the UK while you wait. This brilliant booklet will provide all the information you need: https://care.bt.com/_bt_wifi_hotspots`, ee_template: `Hi there. We've found a damaged pole in the network that's affecting your property. Our civils and engineering teams are already working to fix it. It's a big job, so it might take up to 12 weeks to fully resolve.\n\nWe promise to keep you updated, and we'll get in touch with another update no later than 9 PM on {date}.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm` },
+            { id: 'smart_hub_setup', category: 'Set Up / General', dropdownText: 'Smart Hub Set Up Guide', delayDays: 0, bt_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new BT Smart Hub. This guide will walk you through everything you need to know to get started and enjoy your superfast internet services as soon as they're connected. Check it out here:\n\nhttps://www.bt.com/help/home/broadband/set-up/bt-smart-hub-how-to-set-up\n\nLet me know if you have any questions or if there's anything else I can assist you with.`, ee_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new EE Smart Hub. This guide will walk you through everything you need to know to get started. Check it out here:\n\nhttps://ee.co.uk/help/broadband/getting-started/setting-up-your-smart-hub\n\nLet me know if you have any questions.` },
+            { id: 'mini_hub_setup', category: 'Set Up / General', dropdownText: 'Mini Hub Set Up Guide', delayDays: 0, bt_template: `Hello there! It was great speaking with you today. I'm sorry to hear about the delay in your fiber installation, but we have good news. We have placed an order for one of our 4G mini hubs for you. Once you receive it, please follow this helpful guide on how to use it. It will keep you connected while you wait for your fiber installation. Plus, it has unlimited data so you can continue using it worry-free!\n\nHere's the link to the guide: https://www.bt.com/help/mobile/4g-mini-hub`, ee_template: `Hello there! It was great speaking with you today. I'm sorry to hear about the delay in your fiber installation. We have good news: we've ordered a 4G mini hub for you. Once you receive it, this guide shows you how to use it to stay connected with unlimited data while you wait.\n\nHere's the link to the guide: https://ee.co.uk/help/mobile/get-started/smart-benefits/what-is-the-4g-mini-hub-and-how-do-i-use-it` },
+            { id: 'download_app', category: 'Set Up / General', dropdownText: 'Download the App Guide', delayDays: 0, bt_template: `Hi there! It was great speaking with you today. In case you weren't already aware, you can download our handy MyBT app, which allows you to easily manage your BT account. With this app, you can track orders, view your bills, and even run tests on your connection to ensure you're getting the most out of your BT services.\n\nHere's the link to download the app: https://home.bt.com/tech-gadgets/internet/manage-your-bt-account-quickly-and-easily-with-the-new-my-bt-app-11363997056591`, ee_template: `Hi there! It was great speaking with you today. You can easily manage your EE account with our handy My EE app. With the app, you can track orders, view your bills, and check your connection status.\n\nHere's the link to download the app: https://ee.co.uk/myee/app` },
+            { id: 'call_back', category: 'Set Up / General', dropdownText: 'Arrange a Call Back', delayDays: 0, bt_template: `Hi there, I am really sorry for the experience you have had up to now, I want to assure you I will be calling back on `, ee_template: `Hi there, I'm sorry for the experience you've had so far. I want to assure you I will be calling you back on ` },
+            { id: 'great_to_speak', category: 'Set Up / General', dropdownText: 'Great to Speak to You Follow-up', delayDays: 0, bt_template: `Hi there, It was great to speak to you today, and I hope everything is sorted now for you. You can also manage your account on BT.com or using the MyBT app on your iPhone or Android mobile. To get more information about it just follow this handy link http://bt.custhelp.com/app/answers/detail/a_id/53804/~/how-to-use-the-my-bt-app`, ee_template: `Hi there, It was great to speak to you today, and I hope everything is sorted for you now. You can also manage your account on EE.co.uk or using the My EE app on your mobile. You can find more information here: https://ee.co.uk/myee/app` }
+        ]
+    };
+
+    // --- APPLICATION STATE ---
+    const selections = {
+        type: null,
+        brand: null,
+        category: null,
+        contact: null,
+        scenarioId: null,
+    };
+
+    // --- ELEMENT REFERENCES ---
+    const appContainer = document.getElementById('appContainer');
+    const stepElements = {
+        type: document.getElementById('step-type'),
+        brand: document.getElementById('step-brand'),
+        category: document.getElementById('step-category'),
+        contact: document.getElementById('step-contact'),
+        scenario: document.getElementById('step-scenario'),
+    };
+    // ... more element refs
     const messageOutput = document.getElementById('messageOutput');
-    const copyButton = document.getElementById('copyButton');
-    const statusMessage = document.getElementById('statusMessage');
-    const brandRadios = document.querySelectorAll('input[name="brand"]');
-    const categoryRadios = document.querySelectorAll('input[name="category"]');
-    const contactStatusRadios = document.querySelectorAll('input[name="contactStatus"]');
     const scenarioInput = document.getElementById('scenarioInput');
     const scenarioDropdown = document.getElementById('scenarioDropdown');
     const charCounter = document.getElementById('charCounter');
+    const delayOptions = document.getElementById('delay-options');
     const callbackOptions = document.getElementById('callback-options');
+    const copyButton = document.getElementById('copyButton');
+    const statusMessage = document.getElementById('statusMessage');
+    const delayStartDateInput = document.getElementById('delayStartDate');
     const callbackDateInput = document.getElementById('callbackDate');
     const callbackTimeInput = document.getElementById('callbackTime');
     const insertDateTimeButton = document.getElementById('insertDateTime');
-    const delayOptions = document.getElementById('delay-options');
-    const delayStartDateInput = document.getElementById('delayStartDate');
 
-    let selectedScenarioId = null;
 
-    // --- All scenarios are stored here in this single list ---
-    const scenarios = [
-        {
-            id: 'ducting_issue',
-            category: 'Delays',
-            dropdownText: 'External Ducting Issue (12 Weeks)',
-            delayDays: 60,
-            bt_template: `We're sorry to let you know that there are some issues with the external ducting for your BT service, but don't worry - we've already tasked our contractors with sorting it out! It's quite a complex job, so we're estimating it may take up to 12 weeks to fully resolve.\n\nHowever, we promise to keep you updated along the way and aim to provide you with an update no later than 9 PM on the {date}.\n\nYou can find a helpful booklet here: https://care.bt.com/next_steps`,
-            ee_template: `We've hit a snag with some external ducting work for your new EE Full Fibre service. It's a tricky issue that our network partners are working to resolve. We expect this to be sorted within 12 weeks.\n\nYour next update will be scheduled for {date}. We're sorry for the delay and appreciate your patience.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
-        },
-        {
-            id: 'engineer_shortage',
-            category: 'Delays',
-            dropdownText: 'Engineer Shortage (4 Weeks)',
-            delayDays: 20,
-            bt_template: `We're writing to inform you of a slight delay to your BT installation due to an unexpected regional shortage of specialist engineers. We are actively reallocating resources and expect to have an engineer with you within 4 weeks. We will provide a confirmed installation date no later than {date}. We sincerely apologize for the inconvenience this may cause.`,
-            ee_template: `We're writing to inform you of a slight delay to your EE installation due to an unexpected regional shortage of specialist engineers. We are actively reallocating resources and expect to have an engineer with you within 4 weeks. We will provide a confirmed installation date no later than {date}. We sincerely apologize for the inconvenience this may cause.`
-        },
-        {
-            id: 'wayleave_delay',
-            category: 'Delays',
-            dropdownText: 'Wayleave/Permit Delay (8 Weeks)',
-            delayDays: 40,
-            bt_template: `There has been a delay in progressing your BT order as we require legal permission, known as a wayleave, to install our equipment on private land. This process can be lengthy and involves multiple parties. We are working to get this approved as quickly as possible and estimate a resolution within 8 weeks. Your next formal update will be on or before {date}. Thank you for your patience.`,
-            ee_template: `There has been a delay in progressing your EE order as we require legal permission, known as a wayleave, to install our equipment on private land. This process can be lengthy and involves multiple parties. We are working to get this approved as quickly as possible and estimate a resolution within 8 weeks. Your next formal update will be on or before {date}. Thank you for your patience.`
-        },
-        {
-            id: 'damaged_cabinet',
-            category: 'Delays',
-            dropdownText: 'Damaged Cabinet (12 Weeks)',
-            delayDays: 60,
-            bt_template: `Hey there, we wanted to let you know that we've identified a fault in the network, but don't worry - we've already assigned an engineer to work on getting it resolved! It's a pretty complex job, so it might take up to twelve weeks to fully fix. But don't worry, we'll be in touch with regular updates and aim to provide you with an update no later than 9 PM on {date}.\n\nPlease read this handy booklet for more detail on the work required to get you your new service: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge anywhere in the UK while you wait. This brilliant booklet will provide all the information you need: https://care.bt.com/_bt_wifi_hotspots`,
-            ee_template: `Hi there, we wanted to let you know that we've identified a network fault affecting your EE service. We've already assigned an engineer to work on it. It's a complex job, so it might take up to twelve weeks to fully fix. We'll be in touch with regular updates and aim to provide you with an update no later than 9 PM on {date}.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
-        },
-        {
-            id: 'damaged_pole',
-            category: 'Delays',
-            dropdownText: 'Damaged Pole (12 Weeks)',
-            delayDays: 60,
-            bt_template: `Hey there! We've got some news to share with you - unfortunately, there's a damaged pole in our network that's causing some trouble for your property. But don't worry - we're on it! Our civils and engineering teams are already working hard to fix it up. It's a bit of a big job though, so it might take up to 12 weeks to fully resolve.\n\nWe promise to keep you updated along the way though, and we'll get in touch with another update no later than 9 PM on {date}.\n\nPlease read this handy booklet for more detail on the work required to get you your new Full Fibre service: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge anywhere in the UK while you wait. This brilliant booklet will provide all the information you need: https://care.bt.com/_bt_wifi_hotspots`,
-            ee_template: `Hi there. We've found a damaged pole in the network that's affecting your property. Our civils and engineering teams are already working to fix it. It's a big job, so it might take up to 12 weeks to fully resolve.\n\nWe promise to keep you updated, and we'll get in touch with another update no later than 9 PM on {date}.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
-        },
-        {
-            id: 'developer_delays',
-            category: 'Delays',
-            dropdownText: 'Developer Delays (3 Weeks)',
-            delayDays: 15,
-            bt_template: `Hey there! We just wanted to let you know that there's been a bit of a delay with your order, and we're really sorry for any inconvenience this might cause. It turns out that the developer of your property is experiencing some delays, but don't worry - our suppliers are already working closely with them to get this issue sorted as quickly as possible! Unfortunately, it might take up to 3 weeks to fully resolve.\n\nWe'll be sure to keep you updated along the way though, and we'll get in touch with another update no later than 9 PM on {date}.`,
-            ee_template: `Hi there. We wanted to let you know that there's been a delay with your order. It appears the developer of your property is experiencing some delays, but our suppliers are working closely with them to get this sorted. It might take up to 3 weeks to resolve.\n\nWe'll keep you updated and will get in touch with another update no later than 9 PM on {date}. We're sorry for the inconvenience.`
-        },
-        {
-            id: 'duct_cable_stock',
-            category: 'Delays',
-            dropdownText: 'Duct and Cable Stock (3 Weeks)',
-            delayDays: 15,
-            bt_template: `Hey there! We just wanted to give you a quick update on your fibre order. Unfortunately, there's currently a shortage of the equipment that we need to get it completed. We're really sorry for any inconvenience this may cause! But don't worry - our suppliers are already on it, and they're working hard to get this issue sorted out as quickly as possible. It might take up to 3 weeks to fully resolve, but we promise to keep you updated along the way! We'll get in touch with another update no later than 9 PM on {date}.`,
-            ee_template: `Hi there. A quick update on your fibre order: there's currently a shortage of some equipment we need. We're sorry for the inconvenience. Our suppliers are working hard to get this sorted. It might take up to 3 weeks to resolve, but we promise to keep you updated. We'll get in touch with another update no later than 9 PM on {date}.`
-        },
-        {
-            id: 'e_d_side_fault',
-            category: 'Delays',
-            dropdownText: 'E-side or D-side Fault (20 Days)',
-            delayDays: 20,
-            bt_template: `Hey there! We've got some news to share with you about our network. Unfortunately, there's a fault that we're working hard to resolve with the help of our expert engineers! It might take a little bit of time - up to 20 days, in fact - but we promise to do everything we can to get it sorted as quickly as possible. We'll be sure to keep you updated along the way, and we'll get in touch with another update by 9 PM on {date}.`,
-            ee_template: `Hi there. We've found a fault in the network which our expert engineers are working hard to resolve. It might take up to 20 days, but we promise to get it sorted as quickly as possible. We'll keep you updated and will get in touch with another update by 9 PM on {date}.`
-        },
-        {
-            id: 'hoist_availability',
-            category: 'Delays',
-            dropdownText: 'Hoist Availability (3 Weeks)',
-            delayDays: 15,
-            bt_template: `Hey there! We just wanted to give you a quick update on your installation. It looks like the hoists we need to get the job done are in pretty high demand right now. But don't worry - we're on it! Our team is working hard to source one as soon as possible, though it might take up to three weeks to get our hands on it. We'll be sure to keep you in the loop every step of the way, and we'll get in touch with another update no later than 9 PM on {date}.`,
-            ee_template: `Hi there. A quick update on your installation: the hoists we need are in high demand right now. Our team is working hard to source one as soon as possible, though it might take up to three weeks. We'll keep you in the loop and will get in touch with another update no later than 9 PM on {date}.`
-        },
-        {
-            id: 'no_capacity',
-            category: 'Delays',
-            dropdownText: 'No Capacity Available (12 Weeks)',
-            delayDays: 60,
-            bt_template: `Hey there! We wanted to give you a quick update about your order. Unfortunately, there's a bit of a capacity issue in your area that's causing some delays. But no worries! We're already on top of it and working closely with our suppliers to build in more capacity, so you can enjoy all the benefits of high-speed fibre. It's a bit of a big job, so it might take up to 12 weeks to complete, but we'll be sure to keep you posted every step of the way. We'll send you another update by 9 PM on {date}.`,
-            ee_template: `Hi there. We wanted to give you an update on your order. Unfortunately, there's a capacity issue in your area causing some delays. We're working closely with our suppliers to build more capacity. It's a big job and might take up to 12 weeks to complete, but we'll keep you posted. We'll send you another update by 9 PM on {date}.`
-        },
-        {
-            id: 'planning_design',
-            category: 'Delays',
-            dropdownText: 'Planning and Design (30 Days)',
-            delayDays: 22,
-            bt_template: `We need to create a plan to provide your property with the new service, and this has been sent to our suppliers' specialist planning team. Unfortunately, this process can take up to 30 days to complete. We understand this is frustrating and we apologize for the inconvenience. We will be in contact by 9 pm on {date}.`,
-            ee_template: `To provide your property with the new service, a plan needs to be created by a specialist team. This process can take up to 30 days. We know this is frustrating and we apologize. We will be in contact by 9 pm on {date}.`
-        },
-        {
-            id: 'ptw_delay',
-            category: 'Delays',
-            dropdownText: 'PTW (Permission to Work) Delay',
-            delayDays: 20,
-            bt_template: `Hi there. To continue with your BT Full Fibre order, our partners at Openreach require your 'Permission to Work' on your property. They have sent a letter or email with the necessary documents for you to sign. Please look out for this, as work can begin once it's returned to them. If we don't hear anything, we'll check in with you again by 9 PM on {date}. Thanks for your help!`,
-            ee_template: `Hi there. To continue with your EE Full Fibre order, our partners at Openreach require your 'Permission to Work' on your property. They have sent a letter or email with the necessary documents for you to sign. Please look out for this, as work can begin once it's returned to them. If we don't hear anything, we'll check in with you again by 9 PM on {date}. Thanks for your help!`
-        },
-        {
-            id: 'open_exception',
-            category: 'Delays',
-            dropdownText: 'Open Exception (7 Days)',
-            delayDays: 5,
-            bt_template: `Hi there! We're sorry to let you know that there's been a little hiccup with your order on our supplier's systems. Don't worry though, we're already on the case and we've passed it on to their amazing IT team to get it resolved as quickly as possible. Unfortunately, it might take up to 7 days to get everything sorted out. We'll be sure to keep you posted every step of the way, and we'll be in touch with another update by 9 PM on {date}.`,
-            ee_template: `Hi there. We're sorry but there's been a hiccup with your order on our supplier's systems. We're on the case and have passed it to their IT team to resolve. It might take up to 7 days to sort out. We'll keep you posted and will be in touch with an update by 9 PM on {date}.`
-        },
-        {
-            id: 'routing_issue',
-            category: 'Delays',
-            dropdownText: 'Routing Issue (14 Days)',
-            delayDays: 10,
-            bt_template: `We've encountered an issue with the planned route assigned to your order by our suppliers. To address this, we need to consult a specialist team which may take up to 14 days to resolve. We'll keep in touch and update you on the progress by 9 PM on {date}.`,
-            ee_template: `We've found an issue with the planned route for your order. A specialist team needs to be consulted, which may take up to 14 days to resolve. We'll keep in touch and update you on the progress by 9 PM on {date}.`
-        },
-        {
-            id: 'survey_required',
-            category: 'Delays',
-            dropdownText: 'Survey Required (30 Days)',
-            delayDays: 22,
-            bt_template: `We've received an update from our supplier, and it appears that we'll need to conduct a survey before we can provide you with the full fibre service. We know this might be frustrating, but please bear with us as it can take up to 30 days to complete. We'll be sure to keep you informed and will reach out to you at the latest by 9 PM on {date}.\n\nPlease read this handy booklet for more detail: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge while you wait: https://care.bt.com/_bt_wifi_hotspots`,
-            ee_template: `We've had an update from our supplier, and it looks like a survey is needed before we can complete your full fibre service. We know this is frustrating, but this can take up to 30 days. We'll keep you informed and will contact you by 9 PM on {date} at the latest.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
-        },
-        {
-            id: 'tree_cutting',
-            category: 'Delays',
-            dropdownText: 'Tree Cutting (13 Weeks)',
-            delayDays: 65,
-            bt_template: `Tree cutting is required to provide you with the fibre service. This has been sent to our supplier's civils team to get done. It can take up to 13 weeks. We will call you by 9 PM on {date}.\n\nPlease read this handy booklet for more detail: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge while you wait: https://care.bt.com/_bt_wifi_hotspots`,
-            ee_template: `To provide your fibre service, some tree cutting is required. This has been sent to our supplier's civils team. It can take up to 13 weeks to complete. We will call you by 9 PM on {date}.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
-        },
-        {
-            id: 'smart_hub_setup',
-            category: 'Set Up / General',
-            dropdownText: 'Smart Hub Set Up Guide',
-            delayDays: 0,
-            bt_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new BT Smart Hub. This guide will walk you through everything you need to know to get started and enjoy your superfast internet services as soon as they're connected. Check it out here:\n\nhttps://www.bt.com/help/home/broadband/set-up/bt-smart-hub-how-to-set-up\n\nLet me know if you have any questions or if there's anything else I can assist you with.`,
-            ee_template: `Hi there! It was great speaking with you today. I wanted to follow up and share a helpful guide on how to set up your new EE Smart Hub. This guide will walk you through everything you need to know to get started. Check it out here:\n\nhttps://ee.co.uk/help/broadband/getting-started/setting-up-your-smart-hub\n\nLet me know if you have any questions.`
-        },
-        {
-            id: 'mini_hub_setup',
-            category: 'Set Up / General',
-            dropdownText: 'Mini Hub Set Up Guide',
-            delayDays: 0,
-            bt_template: `Hello there! It was great speaking with you today. I'm sorry to hear about the delay in your fiber installation, but we have good news. We have placed an order for one of our 4G mini hubs for you. Once you receive it, please follow this helpful guide on how to use it. It will keep you connected while you wait for your fiber installation. Plus, it has unlimited data so you can continue using it worry-free!\n\nHere's the link to the guide: https://www.bt.com/help/mobile/4g-mini-hub`,
-            ee_template: `Hello there! It was great speaking with you today. I'm sorry to hear about the delay in your fiber installation. We have good news: we've ordered a 4G mini hub for you. Once you receive it, this guide shows you how to use it to stay connected with unlimited data while you wait.\n\nHere's the link to the guide: https://ee.co.uk/help/mobile/get-started/smart-benefits/what-is-the-4g-mini-hub-and-how-do-i-use-it`
-        },
-        {
-            id: 'download_app',
-            category: 'Set Up / General',
-            dropdownText: 'Download the App Guide',
-            delayDays: 0,
-            bt_template: `Hi there! It was great speaking with you today. In case you weren't already aware, you can download our handy MyBT app, which allows you to easily manage your BT account. With this app, you can track orders, view your bills, and even run tests on your connection to ensure you're getting the most out of your BT services.\n\nHere's the link to download the app: https://home.bt.com/tech-gadgets/internet/manage-your-bt-account-quickly-and-easily-with-the-new-my-bt-app-11363997056591`,
-            ee_template: `Hi there! It was great speaking with you today. You can easily manage your EE account with our handy My EE app. With the app, you can track orders, view your bills, and check your connection status.\n\nHere's the link to download the app: https://ee.co.uk/myee/app`
-        },
-        {
-            id: 'call_back',
-            category: 'Set Up / General',
-            dropdownText: 'Arrange a Call Back',
-            delayDays: 0,
-            bt_template: `Hi there, I am really sorry for the experience you have had up to now, I want to assure you I will be calling back on `,
-            ee_template: `Hi there, I'm sorry for the experience you've had so far. I want to assure you I will be calling you back on `
-        },
-        {
-            id: 'great_to_speak',
-            category: 'Set Up / General',
-            dropdownText: 'Great to Speak to You Follow-up',
-            delayDays: 0,
-            bt_template: `Hi there, It was great to speak to you today, and I hope everything is sorted now for you. You can also manage your account on BT.com or using the MyBT app on your iPhone or Android mobile. To get more information about it just follow this handy link http://bt.custhelp.com/app/answers/detail/a_id/53804/~/how-to-use-the-my-bt-app`,
-            ee_template: `Hi there, It was great to speak to you today, and I hope everything is sorted for you now. You can also manage your account on EE.co.uk or using the My EE app on your mobile. You can find more information here: https://ee.co.uk/myee/app`
+    // --- MAIN UI LOGIC ---
+    function updateUI() {
+        // Helper to manage a step's state (visibility, content, summary)
+        const manageStep = (stepName, show, summaryText) => {
+            const step = stepElements[stepName];
+            const content = step.querySelector('.step-content');
+            const summary = step.querySelector('.step-summary');
+
+            step.classList.toggle('hidden', !show);
+            if (show) {
+                const isCollapsed = !!summaryText;
+                content.classList.toggle('hidden', isCollapsed);
+                summary.classList.toggle('hidden', !isCollapsed);
+                if (isCollapsed) {
+                    summary.innerHTML = summaryText;
+                }
+            }
+        };
+
+        const { type, brand, category, contact } = selections;
+        
+        // Update theme based on brand selection FIRST
+        appContainer.classList.toggle('theme-bt', brand === 'BT');
+        appContainer.classList.toggle('theme-ee', brand === 'EE');
+
+        // Step 1: Brand
+        manageStep('brand', true, brand ? `Brand: <span>${brand}</span>` : null);
+        
+        // Step 2: Type (Pre/Post)
+        manageStep('type', !!brand, type ? `Type: <span>${type === 'pre' ? 'Pre-Text' : 'Post-Text'}</span>` : null);
+        
+        // Post-Text Specific Steps
+        const isPost = type === 'post';
+        manageStep('category', isPost && !!type, isPost && category ? `Category: <span>${category}</span>` : null);
+        manageStep('contact', isPost && !!category, isPost && contact ? `Contact: <span>${contact === 'Yes' ? 'Made' : 'Not Made'}</span>` : null);
+
+        // Final Step: Scenario
+        const showScenario = (type === 'pre' && !!type) || (type === 'post' && !!contact);
+        stepElements.scenario.classList.toggle('hidden', !showScenario);
+        if(showScenario) {
+            populateDropdown();
+        } else {
+            clearScenarioSelection();
         }
-    ];
-
-    // --- Helper function to format a date as dd/mm/yyyy ---
-    function formatDate(date) {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
     }
 
-    // --- Helper function to calculate working days from a start date ---
+    // --- DATA & MESSAGE HANDLING ---
+    function populateDropdown() {
+        const currentScenarios = scenarios[selections.type] || [];
+        const searchTerm = scenarioInput.value.toLowerCase();
+
+        const filtered = currentScenarios.filter(s => {
+            const categoryMatch = selections.type === 'pre' || selections.category === 'All' || s.category === selections.category;
+            const searchMatch = s.dropdownText.toLowerCase().includes(searchTerm);
+            return categoryMatch && searchMatch;
+        });
+
+        filtered.sort((a, b) => a.dropdownText.localeCompare(b.dropdownText));
+
+        scenarioDropdown.innerHTML = '';
+        
+        if (selections.type === 'post' && selections.category === 'All') {
+            const grouped = filtered.reduce((acc, s) => {
+                (acc[s.category] = acc[s.category] || []).push(s);
+                return acc;
+            }, {});
+            Object.keys(grouped).sort().forEach(cat => {
+                const optgroup = document.createElement('div');
+                optgroup.className = 'category-label';
+                optgroup.textContent = cat;
+                scenarioDropdown.appendChild(optgroup);
+                grouped[cat].forEach(addScenarioItem);
+            });
+        } else {
+            filtered.forEach(addScenarioItem);
+        }
+
+        scenarioDropdown.classList.toggle('show', filtered.length > 0);
+    }
+
+    function addScenarioItem(scenario) {
+        const item = document.createElement('div');
+        item.textContent = scenario.dropdownText;
+        item.dataset.id = scenario.id;
+        item.addEventListener('click', () => {
+            scenarioInput.value = scenario.dropdownText;
+            selections.scenarioId = scenario.id;
+            scenarioDropdown.classList.remove('show');
+            generateMessage();
+        });
+        scenarioDropdown.appendChild(item);
+    }
+    
+    function generateMessage() {
+        if (!selections.type || !selections.scenarioId) {
+            messageOutput.value = '';
+            updateCharCounter();
+            return;
+        }
+        
+        const selectedScenario = scenarios[selections.type].find(s => s.id === selections.scenarioId);
+        if (!selectedScenario) return;
+
+        let message = selections.brand === 'BT' ? selectedScenario.bt_template : selectedScenario.ee_template;
+
+        if (selections.type === 'post') {
+            if (selectedScenario.delayDays > 0 && message.includes('{date}')) {
+                const startDate = delayStartDateInput.value;
+                const calculatedDate = formatDate(calculateWorkday(selectedScenario.delayDays, startDate));
+                message = message.replace(/{date}/g, calculatedDate);
+            }
+
+            const hasGreeting = message.toLowerCase().startsWith('hi') || message.toLowerCase().startsWith('hello');
+            if (selections.contact === 'No') {
+                const uncapitalized = message.charAt(0).toLowerCase() + message.slice(1);
+                message = `Sorry I couldn't reach you, ${uncapitalized}`;
+            } else if (selections.contact === 'Yes' && !hasGreeting) {
+                const uncapitalized = message.charAt(0).toLowerCase() + message.slice(1);
+                message = `It was great to speak to you today. ${uncapitalized}`;
+            }
+        }
+        
+        messageOutput.value = message;
+        
+        // Contextual options visibility
+        callbackOptions.classList.toggle('hidden', selections.scenarioId !== 'call_back');
+        delayOptions.classList.toggle('hidden', !selectedScenario || selectedScenario.category !== 'Delays');
+
+        updateCharCounter();
+    }
+
+    function clearScenarioSelection() {
+        scenarioInput.value = '';
+        selections.scenarioId = null;
+        messageOutput.value = '';
+        updateCharCounter();
+        delayOptions.classList.add('hidden');
+        callbackOptions.classList.add('hidden');
+    }
+
+    // --- UTILITY FUNCTIONS ---
+    function updateCharCounter() {
+        const len = messageOutput.value.length;
+        charCounter.textContent = len > 0 ? `${len} characters (${Math.ceil(len / 160)} SMS)` : '';
+    }
+    function formatDate(date) {
+        const d = String(date.getDate()).padStart(2, '0');
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        return `${d}/${m}/${date.getFullYear()}`;
+    }
     function calculateWorkday(daysToAdd, startDateString) {
-        // Use the provided start date, or default to today if it's not set
         let currentDate = startDateString ? new Date(startDateString + 'T00:00:00') : new Date();
         let daysAdded = 0;
         while (daysAdded < daysToAdd) {
             currentDate.setDate(currentDate.getDate() + 1);
-            // Day 0 is Sunday, Day 6 is Saturday. We skip them.
             if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
                 daysAdded++;
             }
         }
         return currentDate;
     }
-    
-    // --- Function to populate the dropdown list based on filters and search ---
-    function populateDropdown() {
-        const selectedCategory = document.querySelector('input[name="category"]:checked').value;
-        const searchTerm = scenarioInput.value.toLowerCase();
-
-        // Filter scenarios based on the selected category and the search term
-        const filteredScenarios = scenarios.filter(scenario => {
-            const categoryMatch = selectedCategory === 'All' || scenario.category === selectedCategory;
-            const searchMatch = scenario.dropdownText.toLowerCase().includes(searchTerm);
-            return categoryMatch && searchMatch;
-        });
-
-        // Sort the filtered scenarios alphabetically
-        filteredScenarios.sort((a, b) => a.dropdownText.localeCompare(b.dropdownText));
-
-        // Group the filtered scenarios by their category
-        const groupedScenarios = filteredScenarios.reduce((acc, scenario) => {
-            const category = scenario.category || 'General';
-            if (!acc[category]) {
-                acc[category] = [];
-            }
-            acc[category].push(scenario);
-            return acc;
-        }, {});
-
-        scenarioDropdown.innerHTML = ''; // Clear the current list
-        
-        const categoriesToShow = selectedCategory === 'All' ? Object.keys(groupedScenarios).sort() : [selectedCategory];
-
-        for (const category of categoriesToShow) {
-            if (groupedScenarios[category] && groupedScenarios[category].length > 0) {
-                const optgroup = document.createElement('div');
-                optgroup.className = 'category-label';
-                optgroup.textContent = category;
-                scenarioDropdown.appendChild(optgroup);
-                
-                groupedScenarios[category].forEach(scenario => {
-                    const item = document.createElement('div');
-                    item.textContent = scenario.dropdownText;
-                    item.dataset.id = scenario.id;
-                    item.addEventListener('click', () => {
-                        scenarioInput.value = scenario.dropdownText;
-                        selectedScenarioId = scenario.id;
-                        scenarioDropdown.classList.remove('show');
-                        generateMessage();
-                    });
-                    scenarioDropdown.appendChild(item);
-                });
-            }
-        }
-        // Show the dropdown if there are results
-        scenarioDropdown.classList.toggle('show', filteredScenarios.length > 0);
-    }
-    
-    // --- Function to update the theme (colors and logos) ---
-    function updateTheme() {
-        const selectedBrand = document.querySelector('input[name="brand"]:checked').value;
-        if (selectedBrand === 'BT') {
-            container.classList.add('theme-bt');
-            container.classList.remove('theme-ee');
-        } else {
-            container.classList.add('theme-ee');
-            container.classList.remove('theme-bt');
-        }
-    }
-
-    // --- Main function to generate the final message ---
-    function generateMessage() {
-        const selectedBrand = document.querySelector('input[name="brand"]:checked').value;
-        const contactStatus = document.querySelector('input[name="contactStatus"]:checked').value;
-        const selectedScenario = scenarios.find(s => s.id === selectedScenarioId);
-
-        let message = '';
-        if (selectedScenario) {
-            const startDate = delayStartDateInput.value;
-            const calculatedDate = formatDate(calculateWorkday(selectedScenario.delayDays, startDate));
-            const template = selectedBrand === 'BT' ? selectedScenario.bt_template : selectedScenario.ee_template;
-            
-            if (selectedScenario.delayDays > 0 && template.includes('{date}')) {
-                 message = template.replace(/{date}/g, calculatedDate);
-            } else {
-                message = template;
-            }
-
-            // Prepend "No Contact" or "Contact Made" message if necessary
-            const hasExistingGreeting = message.toLowerCase().startsWith('hi') || message.toLowerCase().startsWith('hello');
-
-            if (contactStatus === 'No' && message) {
-                const uncapitalizedMessage = message.charAt(0).toLowerCase() + message.slice(1);
-                message = `Sorry I couldn't reach you, ${uncapitalizedMessage}`;
-            } else if (contactStatus === 'Yes' && message && !hasExistingGreeting) {
-                const uncapitalizedMessage = message.charAt(0).toLowerCase() + message.slice(1);
-                message = `It was great to speak to you today. ${message}`;
-            }
-        }
-        
-        messageOutput.value = message;
-
-        // Show or hide the contextual options based on the selected scenario
-        callbackOptions.classList.toggle('hidden', selectedScenarioId !== 'call_back');
-        delayOptions.classList.toggle('hidden', !selectedScenario || selectedScenario.category !== 'Delays');
-
-        // Update the character counter
-        updateCharCounter();
-    }
-    
-    // --- Function to update the character and SMS counter ---
-    function updateCharCounter() {
-        const charLength = messageOutput.value.length;
-        const smsCount = Math.ceil(charLength / 160);
-        if (charLength > 0) {
-            charCounter.textContent = `${charLength} characters (${smsCount} SMS)`;
-        } else {
-            charCounter.textContent = '';
-        }
-    }
-    
-    // --- Function to clear the current selection ---
-    function clearSelection() {
-        scenarioInput.value = '';
-        selectedScenarioId = null;
-        generateMessage();
-    }
-
-    // --- Function to populate the time slots for the callback feature ---
     function populateTimeSlots(dateString) {
         callbackTimeInput.innerHTML = '';
-        const date = new Date(dateString + 'T00:00:00'); // Prevent timezone issues
+        const date = new Date(dateString + 'T00:00:00');
         const dayOfWeek = date.getDay();
-
-        let startHour = (dayOfWeek === 0) ? 9 : 8; // Sunday starts at 9, others at 8
-        const endHour = 20;
-
-        for (let hour = startHour; hour < endHour; hour++) {
-            for (let min = 0; min < 60; min += 15) {
-                const time = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+        const startHour = (dayOfWeek === 0) ? 9 : 8; // Sunday 9am, others 8am
+        for (let h = startHour; h < 20; h++) {
+            for (let m = 0; m < 60; m += 15) {
+                const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
                 const option = document.createElement('option');
-                option.value = time;
-                option.textContent = time;
+                option.value = option.textContent = time;
                 callbackTimeInput.appendChild(option);
             }
         }
     }
 
-    // --- Event Listeners ---
-    // Run when the page first loads
+
+    // --- EVENT LISTENERS ---
     document.addEventListener('DOMContentLoaded', () => {
-        updateTheme(); 
         const today = new Date().toISOString().split("T")[0];
         callbackDateInput.min = today;
         callbackDateInput.value = today;
         delayStartDateInput.value = today;
         populateTimeSlots(today);
+        updateUI();
     });
 
-    // When brand (BT/EE) is changed
-    brandRadios.forEach(radio => radio.addEventListener('change', () => {
-        updateTheme();
-        generateMessage();
-    }));
-    
-    // When category (All/Delays/Set Ups) is changed
-    categoryRadios.forEach(radio => radio.addEventListener('change', () => {
-        clearSelection();
-        populateDropdown();
-    }));
-    
-    // When contact status is changed
-    contactStatusRadios.forEach(radio => radio.addEventListener('change', generateMessage));
+    // Step selection handlers
+    ['brand', 'type', 'category', 'contactStatus'].forEach(name => {
+        document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+            radio.addEventListener('change', e => {
+                const key = name === 'contactStatus' ? 'contact' : name;
+                selections[key] = e.target.value;
 
-    // When typing in the search/select bar
+                // If type is changing, reset subsequent steps
+                if (key === 'type') {
+                    selections.category = null;
+                    selections.contact = null;
+                    // When post-text is selected, we no longer set a default.
+                    // The user will now be prompted to select a category.
+                    if (e.target.value === 'post') {
+                        // Clear any previously checked radio buttons in the next steps
+                        document.querySelectorAll('input[name="category"]').forEach(r => r.checked = false);
+                        document.querySelectorAll('input[name="contactStatus"]').forEach(r => r.checked = false);
+                    }
+                }
+                
+                // Always clear the final message selection when a step changes
+                clearScenarioSelection();
+                updateUI();
+            });
+        });
+    });
+
+
+    // Summary click handlers (to reopen steps)
+    ['brand', 'type', 'category', 'contact'].forEach(stepName => {
+        document.getElementById(`summary-${stepName}`).addEventListener('click', () => {
+            const stepsToReset = {
+                brand: ['brand', 'type', 'category', 'contact'],
+                type: ['type', 'category', 'contact'],
+                category: ['category', 'contact'],
+                contact: ['contact'],
+            }[stepName];
+            
+            stepsToReset.forEach(s => {
+                const inputName = s === 'contact' ? 'contactStatus' : s;
+                const inputs = document.querySelectorAll(`input[name="${inputName}"]`);
+                if (inputs) {
+                    inputs.forEach(input => input.checked = false);
+                }
+                selections[s] = null
+            });
+
+            clearScenarioSelection();
+            updateUI();
+        });
+    });
+
+    // Scenario input handlers
     scenarioInput.addEventListener('input', populateDropdown);
-    
-    // When clicking the search/select bar
     scenarioInput.addEventListener('click', () => {
-        if (scenarioInput.value !== '') {
-            clearSelection();
-        }
+        if (scenarioInput.value !== '') clearScenarioSelection();
         populateDropdown();
     });
-    
-    // To hide the dropdown when clicking outside of it
     document.addEventListener('click', (e) => {
-        if (!container.contains(e.target)) {
-            scenarioDropdown.classList.remove('show');
-        }
+        if (!appContainer.contains(e.target)) scenarioDropdown.classList.remove('show');
     });
 
-    // When the callback date is changed
-    callbackDateInput.addEventListener('change', (e) => {
-        populateTimeSlots(e.target.value);
-    });
-
-    // When the delay start date is changed
+    // Contextual options handlers
     delayStartDateInput.addEventListener('change', generateMessage);
-
-    // When the "Insert Date & Time" button is clicked
+    callbackDateInput.addEventListener('change', (e) => populateTimeSlots(e.target.value));
     insertDateTimeButton.addEventListener('click', () => {
         const date = callbackDateInput.value;
         const time = callbackTimeInput.value;
         if (date && time) {
             const dateObj = new Date(date + 'T00:00:00');
-            const formattedDate = dateObj.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            messageOutput.value += ` ${formattedDate} at ${time}.`;
+            const formatted = dateObj.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            messageOutput.value += ` ${formatted} at ${time}.`;
             updateCharCounter();
         }
     });
 
-    // When the "Copy Message" button is clicked
+    // Final action handlers
     copyButton.addEventListener('click', () => {
-        if (messageOutput.value) { // Allow copying even if no scenario is selected, for edited text
+        if (messageOutput.value) {
             try {
                 messageOutput.select();
-                messageOutput.setSelectionRange(0, 99999); 
-                const successful = document.execCommand('copy');
-                
-                if (successful) {
+                messageOutput.setSelectionRange(0, 99999);
+                if (document.execCommand('copy')) {
                     statusMessage.textContent = 'Message copied to clipboard!';
                 } else {
                     statusMessage.textContent = 'Failed to copy!';
                 }
                 window.getSelection().removeAllRanges();
-
             } catch (err) {
                 statusMessage.textContent = 'Failed to copy!';
-                console.error('Error copying text: ', err);
             } finally {
-                 setTimeout(() => { statusMessage.textContent = ''; }, 2000);
+                setTimeout(() => { statusMessage.textContent = ''; }, 2000);
             }
         }
     });
-    
-    // Update counter when user types in the textarea
     messageOutput.addEventListener('input', updateCharCounter);
 
 </script>
 
 </body>
 </html>
-
