@@ -285,7 +285,7 @@
             dropdownText: 'External Ducting Issue (12 Weeks)',
             delayDays: 60,
             bt_template: `We're sorry to let you know that there are some issues with the external ducting for your BT service, but don't worry - we've already tasked our contractors with sorting it out! It's quite a complex job, so we're estimating it may take up to 12 weeks to fully resolve.\n\nHowever, we promise to keep you updated along the way and aim to provide you with an update no later than 9 PM on the {date}.\n\nYou can find a helpful booklet here: https://care.bt.com/next_steps`,
-            ee_template: `Hi there. We've hit a snag with some external ducting work for your new EE Full Fibre service. It's a tricky issue that our network partners are working to resolve. We expect this to be sorted within 12 weeks.\n\nYour next update will be scheduled for {date}. We're sorry for the delay and appreciate your patience.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
+            ee_template: `We've hit a snag with some external ducting work for your new EE Full Fibre service. It's a tricky issue that our network partners are working to resolve. We expect this to be sorted within 12 weeks.\n\nYour next update will be scheduled for {date}. We're sorry for the delay and appreciate your patience.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
         },
         {
             id: 'engineer_shortage',
@@ -360,20 +360,20 @@
             ee_template: `Hi there. We wanted to give you an update on your order. Unfortunately, there's a capacity issue in your area causing some delays. We're working closely with our suppliers to build more capacity. It's a big job and might take up to 12 weeks to complete, but we'll keep you posted. We'll send you another update by 9 PM on {date}.`
         },
         {
-            id: 'survey_required',
-            category: 'Delays',
-            dropdownText: 'Survey Required (30 Days)',
-            delayDays: 22,
-            bt_template: `We've received an update from our supplier, and it appears that we'll need to conduct a survey before we can provide you with the full fibre service. We know this might be frustrating, but please bear with us as it can take up to 30 days to complete. We'll be sure to keep you informed and will reach out to you at the latest by 9 PM on {date}.\n\nPlease read this handy booklet for more detail: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge while you wait: https://care.bt.com/_bt_wifi_hotspots`,
-            ee_template: `We've had an update from our supplier, and it looks like a survey is needed before we can complete your full fibre service. We know this is frustrating, but this can take up to 30 days. We'll keep you informed and will contact you by 9 PM on {date} at the latest.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
-        },
-        {
             id: 'planning_design',
             category: 'Delays',
             dropdownText: 'Planning and Design (30 Days)',
             delayDays: 22,
             bt_template: `We need to create a plan to provide your property with the new service, and this has been sent to our suppliers' specialist planning team. Unfortunately, this process can take up to 30 days to complete. We understand this is frustrating and we apologize for the inconvenience. We will be in contact by 9 pm on {date}.`,
             ee_template: `To provide your property with the new service, a plan needs to be created by a specialist team. This process can take up to 30 days. We know this is frustrating and we apologize. We will be in contact by 9 pm on {date}.`
+        },
+        {
+            id: 'ptw_delay',
+            category: 'Delays',
+            dropdownText: 'PTW (Permission to Work) Delay',
+            delayDays: 20,
+            bt_template: `Hi there. To continue with your BT Full Fibre order, our partners at Openreach require your 'Permission to Work' on your property. They have sent a letter or email with the necessary documents for you to sign. Please look out for this, as work can begin once it's returned to them. If we don't hear anything, we'll check in with you again by 9 PM on {date}. Thanks for your help!`,
+            ee_template: `Hi there. To continue with your EE Full Fibre order, our partners at Openreach require your 'Permission to Work' on your property. They have sent a letter or email with the necessary documents for you to sign. Please look out for this, as work can begin once it's returned to them. If we don't hear anything, we'll check in with you again by 9 PM on {date}. Thanks for your help!`
         },
         {
             id: 'open_exception',
@@ -384,20 +384,28 @@
             ee_template: `Hi there. We're sorry but there's been a hiccup with your order on our supplier's systems. We're on the case and have passed it to their IT team to resolve. It might take up to 7 days to sort out. We'll keep you posted and will be in touch with an update by 9 PM on {date}.`
         },
         {
-            id: 'tree_cutting',
-            category: 'Delays',
-            dropdownText: 'Tree Cutting (13 Weeks)',
-            delayDays: 65,
-            bt_template: `Tree cutting is required to provide you with the fibre service. This has been sent to our supplier's civils team to get done. It can take up to 13 weeks. We will call you by 9 PM on {date}.\n\nPlease read this handy booklet for more detail: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge while you wait: https://care.bt.com/_bt_wifi_hotspots`,
-            ee_template: `To provide your fibre service, some tree cutting is required. This has been sent to our supplier's civils team. It can take up to 13 weeks to complete. We will call you by 9 PM on {date}.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
-        },
-        {
             id: 'routing_issue',
             category: 'Delays',
             dropdownText: 'Routing Issue (14 Days)',
             delayDays: 10,
             bt_template: `We've encountered an issue with the planned route assigned to your order by our suppliers. To address this, we need to consult a specialist team which may take up to 14 days to resolve. We'll keep in touch and update you on the progress by 9 PM on {date}.`,
             ee_template: `We've found an issue with the planned route for your order. A specialist team needs to be consulted, which may take up to 14 days to resolve. We'll keep in touch and update you on the progress by 9 PM on {date}.`
+        },
+        {
+            id: 'survey_required',
+            category: 'Delays',
+            dropdownText: 'Survey Required (30 Days)',
+            delayDays: 22,
+            bt_template: `We've received an update from our supplier, and it appears that we'll need to conduct a survey before we can provide you with the full fibre service. We know this might be frustrating, but please bear with us as it can take up to 30 days to complete. We'll be sure to keep you informed and will reach out to you at the latest by 9 PM on {date}.\n\nPlease read this handy booklet for more detail: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge while you wait: https://care.bt.com/_bt_wifi_hotspots`,
+            ee_template: `We've had an update from our supplier, and it looks like a survey is needed before we can complete your full fibre service. We know this is frustrating, but this can take up to 30 days. We'll keep you informed and will contact you by 9 PM on {date} at the latest.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
+        },
+        {
+            id: 'tree_cutting',
+            category: 'Delays',
+            dropdownText: 'Tree Cutting (13 Weeks)',
+            delayDays: 65,
+            bt_template: `Tree cutting is required to provide you with the fibre service. This has been sent to our supplier's civils team to get done. It can take up to 13 weeks. We will call you by 9 PM on {date}.\n\nPlease read this handy booklet for more detail: https://care.bt.com/next_steps. As a BT Customer, you can also access BT WiFi hotspots free of charge while you wait: https://care.bt.com/_bt_wifi_hotspots`,
+            ee_template: `To provide your fibre service, some tree cutting is required. This has been sent to our supplier's civils team. It can take up to 13 weeks to complete. We will call you by 9 PM on {date}.\n\nAs an EE customer, you can use BT/EE WIFI hotspots for free while you wait. Find out more here: https://ee-wifi.ee.co.uk/public/ee/help/index.htm`
         },
         {
             id: 'smart_hub_setup',
@@ -428,8 +436,8 @@
             category: 'Set Up / General',
             dropdownText: 'Arrange a Call Back',
             delayDays: 0,
-            bt_template: `Hi there, It was great to speak to you today, I am really sorry for the experience you have had up to now, I want to assure you I will be calling back on `,
-            ee_template: `Hi there, It was great to speak to you today. I'm sorry for the experience you've had so far. I want to assure you I will be calling you back on `
+            bt_template: `Hi there, I am really sorry for the experience you have had up to now, I want to assure you I will be calling back on `,
+            ee_template: `Hi there, I'm sorry for the experience you've had so far. I want to assure you I will be calling you back on `
         },
         {
             id: 'great_to_speak',
@@ -547,16 +555,19 @@
             } else {
                 message = template;
             }
+
+            // Prepend "No Contact" or "Contact Made" message if necessary
+            const hasExistingGreeting = message.toLowerCase().startsWith('hi') || message.toLowerCase().startsWith('hello');
+
+            if (contactStatus === 'No' && message) {
+                const uncapitalizedMessage = message.charAt(0).toLowerCase() + message.slice(1);
+                message = `Sorry I couldn't reach you, ${uncapitalizedMessage}`;
+            } else if (contactStatus === 'Yes' && message && !hasExistingGreeting) {
+                const uncapitalizedMessage = message.charAt(0).toLowerCase() + message.slice(1);
+                message = `It was great to speak to you today. ${message}`;
+            }
         }
         
-        // Prepend "No Contact" message if necessary
-        if (contactStatus === 'No' && message) {
-            const originalMessage = message;
-            // Un-capitalize the first letter of the original message to make it flow better
-            const uncapitalizedMessage = originalMessage.charAt(0).toLowerCase() + originalMessage.slice(1);
-            message = `Sorry I couldn't reach you, ${uncapitalizedMessage}`;
-        }
-
         messageOutput.value = message;
 
         // Show or hide the contextual options based on the selected scenario
