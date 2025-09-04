@@ -221,6 +221,13 @@
             <label for="catSetUps">Set Up / General</label>
         </div>
 
+        <div class="filter-selector">
+            <input type="radio" id="contactYes" name="contactStatus" value="Yes" checked>
+            <label for="contactYes">Contact Made</label>
+            <input type="radio" id="contactNo" name="contactStatus" value="No">
+            <label for="contactNo">No Contact</label>
+        </div>
+
         <label for="scenarioInput">Select post text:</label>
         <div class="custom-select-container">
             <input type="text" id="scenarioInput" placeholder="Type or click to select...">
@@ -257,6 +264,7 @@
     const statusMessage = document.getElementById('statusMessage');
     const brandRadios = document.querySelectorAll('input[name="brand"]');
     const categoryRadios = document.querySelectorAll('input[name="category"]');
+    const contactStatusRadios = document.querySelectorAll('input[name="contactStatus"]');
     const scenarioInput = document.getElementById('scenarioInput');
     const scenarioDropdown = document.getElementById('scenarioDropdown');
     const charCounter = document.getElementById('charCounter');
@@ -525,6 +533,7 @@
     // --- Main function to generate the final message ---
     function generateMessage() {
         const selectedBrand = document.querySelector('input[name="brand"]:checked').value;
+        const contactStatus = document.querySelector('input[name="contactStatus"]:checked').value;
         const selectedScenario = scenarios.find(s => s.id === selectedScenarioId);
 
         let message = '';
@@ -540,6 +549,14 @@
             }
         }
         
+        // Prepend "No Contact" message if necessary
+        if (contactStatus === 'No' && message) {
+            const originalMessage = message;
+            // Un-capitalize the first letter of the original message to make it flow better
+            const uncapitalizedMessage = originalMessage.charAt(0).toLowerCase() + originalMessage.slice(1);
+            message = `Sorry I couldn't reach you, ${uncapitalizedMessage}`;
+        }
+
         messageOutput.value = message;
 
         // Show or hide the contextual options based on the selected scenario
@@ -611,6 +628,9 @@
         populateDropdown();
     }));
     
+    // When contact status is changed
+    contactStatusRadios.forEach(radio => radio.addEventListener('change', generateMessage));
+
     // When typing in the search/select bar
     scenarioInput.addEventListener('input', populateDropdown);
     
@@ -651,7 +671,7 @@
 
     // When the "Copy Message" button is clicked
     copyButton.addEventListener('click', () => {
-        if (messageOutput.value && selectedScenarioId) {
+        if (messageOutput.value) { // Allow copying even if no scenario is selected, for edited text
             try {
                 messageOutput.select();
                 messageOutput.setSelectionRange(0, 99999); 
