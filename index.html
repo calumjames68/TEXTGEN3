@@ -167,15 +167,6 @@
         </div>
         <h1>Text Generator</h1>
 
-        <!-- Quick Start Options -->
-        <div id="quick-start-container">
-            <label>Quick Start:</label>
-            <div class="filter-selector">
-                <button id="quickStartBT" class="button-like">BT Delay (Contact Made)</button>
-                <button id="quickStartEE" class="button-like">EE Delay (Contact Made)</button>
-            </div>
-        </div>
-
         <!-- Step 1: Brand -->
         <div id="step-brand" class="step-container">
             <div id="summary-brand" class="step-summary hidden"></div>
@@ -324,9 +315,6 @@
         contact: document.getElementById('step-contact'),
         scenario: document.getElementById('step-scenario'),
     };
-    const quickStartContainer = document.getElementById('quick-start-container');
-    const quickStartBT = document.getElementById('quickStartBT');
-    const quickStartEE = document.getElementById('quickStartEE');
     const messageOutput = document.getElementById('messageOutput');
     const scenarioInput = document.getElementById('scenarioInput');
     const scenarioDropdown = document.getElementById('scenarioDropdown');
@@ -349,9 +337,6 @@
     // ===================================================================================
     function updateUI() {
         const { type, brand, category, contact } = selections;
-        
-        // Hide the "Quick Start" section once a brand is manually selected.
-        quickStartContainer.classList.toggle('hidden', !!brand);
         
         // Apply the correct color theme (BT or EE) to the container.
         appContainer.classList.toggle('theme-bt', brand === 'BT');
@@ -561,29 +546,6 @@
         populateTimeSlots(today);
         updateUI();
     });
-
-    /**
-     * Handlers for the "Quick Start" buttons.
-     */
-    function handleQuickStart(brand) {
-        // Set the state for a common scenario.
-        selections.brand = brand;
-        selections.type = 'post';
-        selections.category = 'Delays';
-        selections.contact = 'Yes';
-
-        // Check the corresponding radio buttons to keep the UI in sync.
-        document.getElementById(brand === 'BT' ? 'brandBT' : 'brandEE').checked = true;
-        document.getElementById('typePost').checked = true;
-        document.getElementById('catDelays').checked = true;
-        document.getElementById('contactYes').checked = true;
-        
-        clearScenarioSelection();
-        updateUI();
-    }
-    quickStartBT.addEventListener('click', () => handleQuickStart('BT'));
-    quickStartEE.addEventListener('click', () => handleQuickStart('EE'));
-
 
     /**
      * A single, powerful event listener for all the main step selections (radio buttons).
