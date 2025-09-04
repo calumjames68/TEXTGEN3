@@ -103,19 +103,6 @@
 
         /* --- Step Styling --- */
         .step-container { margin-bottom: 15px; }
-        .step-summary {
-            padding: 12px 20px;
-            border-radius: 6px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .step-summary:hover {
-             transform: translateY(-1px);
-             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        .step-summary span { font-weight: normal; opacity: 0.9; }
 
         /* --- Custom Search/Select Input --- */
         .custom-select-container { position: relative; }
@@ -343,54 +330,24 @@
         // Hide quick start if a brand has been selected
         quickStartContainer.classList.toggle('hidden', !!brand);
         
-        // Update theme based on brand selection FIRST
+        // Update theme based on brand selection
         appContainer.classList.toggle('theme-bt', brand === 'BT');
         appContainer.classList.toggle('theme-ee', brand === 'EE');
 
+        // Sequentially show steps based on previous selections
+        stepElements.brand.classList.remove('hidden'); // Brand is always visible initially
+        stepElements.type.classList.toggle('hidden', !brand);
+        stepElements.category.classList.toggle('hidden', type !== 'post');
+        stepElements.contact.classList.toggle('hidden', !(type === 'post' && category));
+        
         // Determine if we've reached the final step where the scenario list is shown
         const showScenario = (type === 'pre' && !!brand) || (type === 'post' && !!contact);
-
-        // Helper to manage a step's state (visibility, content, summary)
-        const manageStep = (stepName, show, hasSelection) => {
-            const step = stepElements[stepName];
-            const content = step.querySelector('.step-content');
-            const summary = step.querySelector('.step-summary');
-
-            step.classList.toggle('hidden', !show);
-            if (show) {
-                // If the final step is visible, keep all previous steps "enlarged" (content visible).
-                // Otherwise, collapse the step into a summary if a selection has been made.
-                const isCollapsed = showScenario ? false : hasSelection;
-                
-                content.classList.toggle('hidden', isCollapsed);
-                summary.classList.toggle('hidden', !isCollapsed);
-
-                if (isCollapsed) {
-                    let summaryText = '';
-                    const selectionValue = selections[stepName === 'contact' ? 'contact' : stepName];
-                    switch (stepName) {
-                        case 'brand': summaryText = `Brand: <span>${selectionValue}</span>`; break;
-                        case 'type': summaryText = `Type: <span>${selectionValue === 'pre' ? 'Pre-Text' : 'Post-Text'}</span>`; break;
-                        case 'category': summaryText = `Category: <span>${selectionValue}</span>`; break;
-                        case 'contact': summaryText = `Contact: <span>${selectionValue === 'Yes' ? 'Made' : 'Not Made'}</span>`; break;
-                    }
-                    summary.innerHTML = summaryText;
-                }
-            }
-        };
-
-        // Manage visibility and state of each step
-        manageStep('brand', true, !!brand);
-        manageStep('type', !!brand, !!type);
-        manageStep('category', type === 'post' && !!type, !!category);
-        manageStep('contact', type === 'post' && !!category, !!contact);
-        
-        // Final Step: Scenario
         stepElements.scenario.classList.toggle('hidden', !showScenario);
-        if(showScenario) {
-            populateDropdown();
-        } else {
+
+        if(!showScenario) {
             clearScenarioSelection();
+        } else {
+            populateDropdown();
         }
     }
 
@@ -564,26 +521,21 @@
                 const key = name === 'contactStatus' ? 'contact' : name;
                 selections[key] = e.target.value;
 
-                if (key === 'contact') {
-                    // If only contact status changes, the list of available scenarios is the same.
-                    // We can just regenerate the message to update the prefix.
-                    generateMessage();
+                // For minor changes (brand, contact status) that only affect the text, just regenerate the message.
+                if (key === 'brand' || key === 'contact') {
+                    if (selections.scenarioId) {
+                        generateMessage();
+                    }
                 } else {
-                    // If brand, type, or category changes, the list of scenarios is now different.
-                    // We must clear the current scenario selection.
+                    // For major changes (type, category) that alter the workflow, reset subsequent steps.
                     clearScenarioSelection();
 
-                    // And reset the state of any subsequent steps.
-                    if (key === 'brand') {
-                        selections.type = null;
-                        selections.category = null;
+                    // When changing category, we need to reset the contact status choice.
+                    if (key === 'category') {
                         selections.contact = null;
-                        document.querySelectorAll('input[name="type"], input[name="category"], input[name="contactStatus"]').forEach(r => r.checked = false);
-                    } else if (key === 'type') {
-                        selections.category = null;
-                        selections.contact = null;
-                        document.querySelectorAll('input[name="category"], input[name="contactStatus"]').forEach(r => r.checked = false);
+                        document.querySelectorAll('input[name="contactStatus"]').forEach(r => r.checked = false);
                     }
+                    // Note: When changing type (pre/post), we now remember the category/contact selections.
                 }
                 
                 updateUI();
@@ -591,30 +543,6 @@
         });
     });
 
-
-    // Summary click handlers (to reopen steps)
-    ['brand', 'type', 'category', 'contact'].forEach(stepName => {
-        document.getElementById(`summary-${stepName}`).addEventListener('click', () => {
-            const stepsToReset = {
-                brand: ['brand', 'type', 'category', 'contact'],
-                type: ['type', 'category', 'contact'],
-                category: ['category', 'contact'],
-                contact: ['contact'],
-            }[stepName];
-            
-            stepsToReset.forEach(s => {
-                const inputName = s === 'contact' ? 'contactStatus' : s;
-                const inputs = document.querySelectorAll(`input[name="${inputName}"]`);
-                if (inputs) {
-                    inputs.forEach(input => input.checked = false);
-                }
-                selections[s] = null
-            });
-
-            clearScenarioSelection();
-            updateUI();
-        });
-    });
 
     // Scenario input handlers
     scenarioInput.addEventListener('input', populateDropdown);
@@ -665,4 +593,3 @@
 
 </body>
 </html>
-
