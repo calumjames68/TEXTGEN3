@@ -338,23 +338,6 @@
 
     // --- MAIN UI LOGIC ---
     function updateUI() {
-        // Helper to manage a step's state (visibility, content, summary)
-        const manageStep = (stepName, show, summaryText) => {
-            const step = stepElements[stepName];
-            const content = step.querySelector('.step-content');
-            const summary = step.querySelector('.step-summary');
-
-            step.classList.toggle('hidden', !show);
-            if (show) {
-                const isCollapsed = !!summaryText;
-                content.classList.toggle('hidden', isCollapsed);
-                summary.classList.toggle('hidden', !isCollapsed);
-                if (isCollapsed) {
-                    summary.innerHTML = summaryText;
-                }
-            }
-        };
-
         const { type, brand, category, contact } = selections;
         
         // Hide quick start if a brand has been selected
@@ -364,19 +347,45 @@
         appContainer.classList.toggle('theme-bt', brand === 'BT');
         appContainer.classList.toggle('theme-ee', brand === 'EE');
 
-        // Step 1: Brand
-        manageStep('brand', true, brand ? `Brand: <span>${brand}</span>` : null);
-        
-        // Step 2: Type (Pre/Post)
-        manageStep('type', !!brand, type ? `Type: <span>${type === 'pre' ? 'Pre-Text' : 'Post-Text'}</span>` : null);
-        
-        // Post-Text Specific Steps
-        const isPost = type === 'post';
-        manageStep('category', isPost && !!type, isPost && category ? `Category: <span>${category}</span>` : null);
-        manageStep('contact', isPost && !!category, isPost && contact ? `Contact: <span>${contact === 'Yes' ? 'Made' : 'Not Made'}</span>` : null);
+        // Determine if we've reached the final step where the scenario list is shown
+        const showScenario = (type === 'pre' && !!brand) || (type === 'post' && !!contact);
 
+        // Helper to manage a step's state (visibility, content, summary)
+        const manageStep = (stepName, show, hasSelection) => {
+            const step = stepElements[stepName];
+            const content = step.querySelector('.step-content');
+            const summary = step.querySelector('.step-summary');
+
+            step.classList.toggle('hidden', !show);
+            if (show) {
+                // If the final step is visible, keep all previous steps "enlarged" (content visible).
+                // Otherwise, collapse the step into a summary if a selection has been made.
+                const isCollapsed = showScenario ? false : hasSelection;
+                
+                content.classList.toggle('hidden', isCollapsed);
+                summary.classList.toggle('hidden', !isCollapsed);
+
+                if (isCollapsed) {
+                    let summaryText = '';
+                    const selectionValue = selections[stepName === 'contact' ? 'contact' : stepName];
+                    switch (stepName) {
+                        case 'brand': summaryText = `Brand: <span>${selectionValue}</span>`; break;
+                        case 'type': summaryText = `Type: <span>${selectionValue === 'pre' ? 'Pre-Text' : 'Post-Text'}</span>`; break;
+                        case 'category': summaryText = `Category: <span>${selectionValue}</span>`; break;
+                        case 'contact': summaryText = `Contact: <span>${selectionValue === 'Yes' ? 'Made' : 'Not Made'}</span>`; break;
+                    }
+                    summary.innerHTML = summaryText;
+                }
+            }
+        };
+
+        // Manage visibility and state of each step
+        manageStep('brand', true, !!brand);
+        manageStep('type', !!brand, !!type);
+        manageStep('category', type === 'post' && !!type, !!category);
+        manageStep('contact', type === 'post' && !!category, !!contact);
+        
         // Final Step: Scenario
-        const showScenario = (type === 'pre' && !!type) || (type === 'post' && !!contact);
         stepElements.scenario.classList.toggle('hidden', !showScenario);
         if(showScenario) {
             populateDropdown();
@@ -555,21 +564,28 @@
                 const key = name === 'contactStatus' ? 'contact' : name;
                 selections[key] = e.target.value;
 
-                // If type is changing, reset subsequent steps
-                if (key === 'type') {
-                    selections.category = null;
-                    selections.contact = null;
-                    // When post-text is selected, we no longer set a default.
-                    // The user will now be prompted to select a category.
-                    if (e.target.value === 'post') {
-                        // Clear any previously checked radio buttons in the next steps
-                        document.querySelectorAll('input[name="category"]').forEach(r => r.checked = false);
-                        document.querySelectorAll('input[name="contactStatus"]').forEach(r => r.checked = false);
+                if (key === 'contact') {
+                    // If only contact status changes, the list of available scenarios is the same.
+                    // We can just regenerate the message to update the prefix.
+                    generateMessage();
+                } else {
+                    // If brand, type, or category changes, the list of scenarios is now different.
+                    // We must clear the current scenario selection.
+                    clearScenarioSelection();
+
+                    // And reset the state of any subsequent steps.
+                    if (key === 'brand') {
+                        selections.type = null;
+                        selections.category = null;
+                        selections.contact = null;
+                        document.querySelectorAll('input[name="type"], input[name="category"], input[name="contactStatus"]').forEach(r => r.checked = false);
+                    } else if (key === 'type') {
+                        selections.category = null;
+                        selections.contact = null;
+                        document.querySelectorAll('input[name="category"], input[name="contactStatus"]').forEach(r => r.checked = false);
                     }
                 }
                 
-                // Always clear the final message selection when a step changes
-                clearScenarioSelection();
                 updateUI();
             });
         });
@@ -649,5 +665,4 @@
 
 </body>
 </html>
-
 
