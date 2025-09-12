@@ -13,6 +13,8 @@
             --bt-primary-hover: #441090;
             --ee-primary: #009999;
             --ee-primary-hover: #007a7a;
+            --secondary-gray: #6c757d;
+            --secondary-gray-hover: #5a6268;
         }
 
         body {
@@ -67,11 +69,16 @@
             box-sizing: border-box;
         }
         textarea { margin-top: 10px; height: 180px; resize: vertical; background-color: #f8f9fa; }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
         button {
             display: block;
             width: 100%;
             padding: 15px;
-            margin-top: 20px;
+            margin-top: 0; /* Reset margin as it's handled by the container */
             color: white;
             border: none;
             border-radius: 6px;
@@ -83,6 +90,12 @@
         button:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        #resetButton {
+            background-color: var(--secondary-gray);
+        }
+        #resetButton:hover {
+             background-color: var(--secondary-gray-hover);
         }
         .status { text-align: center; margin-top: 15px; color: #28a745; font-weight: 500; height: 20px; }
         .filter-selector { display: flex; justify-content: center; margin-bottom: 15px; border: 1px solid #dbe2e8; border-radius: 6px; overflow: hidden; }
@@ -138,15 +151,19 @@
         .contextual-options button { margin-top: 10px; padding: 10px; font-size: 14px; }
 
         /* --- Theme Styling --- */
-        .theme-bt button { background-color: var(--bt-primary); }
-        .theme-bt button:hover { background-color: var(--bt-primary-hover); }
+        .theme-bt button#copyButton { background-color: var(--bt-primary); }
+        .theme-bt button#copyButton:hover { background-color: var(--bt-primary-hover); }
+        .theme-bt .contextual-options button { background-color: var(--bt-primary); }
+        .theme-bt .contextual-options button:hover { background-color: var(--bt-primary-hover); }
         .theme-bt .filter-selector input[type="radio"]:checked + label { background-color: var(--bt-primary); }
         .theme-bt .step-summary { background-color: var(--bt-primary); }
         .theme-bt #logo-ee { visibility: hidden; }
         .theme-bt .feedback-text a { color: var(--bt-primary); }
 
-        .theme-ee button { background-color: var(--ee-primary); }
-        .theme-ee button:hover { background-color: var(--ee-primary-hover); }
+        .theme-ee button#copyButton { background-color: var(--ee-primary); }
+        .theme-ee button#copyButton:hover { background-color: var(--ee-primary-hover); }
+        .theme-ee .contextual-options button { background-color: var(--ee-primary); }
+        .theme-ee .contextual-options button:hover { background-color: var(--ee-primary-hover); }
         .theme-ee .filter-selector input[type="radio"]:checked + label { background-color: var(--ee-primary); }
         .theme-ee .step-summary { background-color: var(--ee-primary); }
         .theme-ee #logo-bt { visibility: hidden; }
@@ -250,7 +267,10 @@
                 <button id="insertDateTime">Insert Date & Time</button>
             </div>
             
-            <button id="copyButton">Copy Message</button>
+            <div class="action-buttons">
+                <button id="copyButton">Copy Message</button>
+                <button id="resetButton">Reset</button>
+            </div>
             <div id="statusMessage" class="status"></div>
         </div>
         
@@ -336,6 +356,7 @@
     const delayOptions = document.getElementById('delay-options');
     const callbackOptions = document.getElementById('callback-options');
     const copyButton = document.getElementById('copyButton');
+    const resetButton = document.getElementById('resetButton');
     const statusMessage = document.getElementById('statusMessage');
     const delayStartDateInput = document.getElementById('delayStartDate');
     const callbackDateInput = document.getElementById('callbackDate');
@@ -506,6 +527,35 @@
         callbackOptions.classList.add('hidden');
     }
 
+    /**
+     * Resets the entire application to its initial state.
+     */
+    function resetApp() {
+        // 1. Reset state object
+        selections.type = null;
+        selections.brand = null;
+        selections.category = null;
+        selections.contact = null;
+        selections.scenarioId = null;
+
+        // 2. Clear radio button selections
+        const radioButtons = document.querySelectorAll('input[type="radio"]');
+        radioButtons.forEach(radio => radio.checked = false);
+
+        // 3. Clear the final step's inputs and outputs
+        clearScenarioSelection();
+
+        // 4. Reset date inputs to today
+        const today = new Date().toISOString().split("T")[0];
+        delayStartDateInput.value = today;
+        callbackDateInput.value = today;
+        populateTimeSlots(today);
+
+        // 5. Update the UI to show the initial state (just the brand selection)
+        updateUI();
+    }
+
+
     // ===================================================================================
     // --- UTILITY FUNCTIONS ---
     // A collection of helper functions for common tasks like date formatting,
@@ -651,6 +701,7 @@
             }
         }
     });
+    resetButton.addEventListener('click', resetApp);
     messageOutput.addEventListener('input', updateCharCounter);
 
 </script>
