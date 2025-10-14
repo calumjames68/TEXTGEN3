@@ -222,6 +222,8 @@
                     <label for="catAll">All</label>
                     <input type="radio" id="catDelays" name="category" value="Delays">
                     <label for="catDelays">Delays</label>
+                    <input type="radio" id="catComplaints" name="category" value="Complaints">
+                    <label for="catComplaints">Complaints</label>
                     <input type="radio" id="catSetUps" name="category" value="Set Up / General">
                     <label for="catSetUps">Set Up / General</label>
                 </div>
@@ -319,6 +321,7 @@
             { id: 'call_back', category: 'Set Up / General', dropdownText: 'Arrange/Book a Call Back', delayDays: 0, bt_template: `Hi there. I am really sorry for the experience you have had up to now. I want to assure you I will be calling back on `, ee_template: `Hi there. I'm sorry for the experience you've had so far. I want to assure you I will be calling you back on `, bt_template_nocontact: `Sorry I missed you. If you'd still like to speak to us, you can book a call back at a time that suits you here: https://www.bt.com/help/contact-us/callback`, ee_template_nocontact: `Sorry I missed you. If you'd still like to speak to us, you can book a call back at a time that suits you here: https://ee.co.uk/help/contact-ee/callback` },
             { id: 'telecare_compatibility', category: 'Set Up / General', dropdownText: 'Telecare Alarm Compatibility Check', delayDays: 0, bt_template: `Hi there. Following our conversation, it's important to check that your Telecare alarm is compatible with our new Digital Voice service. Please contact your alarm provider to confirm it will work correctly once your new service is active. You can find more information from us here: https://www.bt.com/help/landline/digital-voice--how-will-my-personal-alarm-service-work-`, ee_template: `Hi there. Following our conversation, it's important to check that your Telecare alarm is compatible with our new Digital Home Phone service. Please contact your alarm provider to confirm it will work correctly once your new service is active. You can find more information from us here: https://ee.co.uk/help/landline-and-broadband/digital-home-phone`, bt_template_nocontact: `Sorry I missed you. We're getting in touch as our records show you may have a Telecare alarm. It's important to check its compatibility with our new Digital Voice service, so please contact your alarm provider to confirm it will work correctly. More info: https://www.bt.com/help/landline/digital-voice--how-will-my-personal-alarm-service-work-`, ee_template_nocontact: `Sorry I missed you. We're getting in touch as our records show you may have a Telecare alarm. It's important to check its compatibility with our new Digital Home Phone service, so please contact your alarm provider to confirm it will work correctly. More info: https://ee.co.uk/help/landline-and-broadband/digital-home-phone` },
             { id: 'telecare_marker_added', category: 'Set Up / General', dropdownText: 'Telecare/Vulnerability Marker Added', delayDays: 0, bt_template: `Hi there. Following our conversation, I've now successfully added a Telecare/Vulnerability marker to your BT account. This helps us understand your needs better and ensures we prioritize your service, especially in the event of a fault.`, ee_template: `Hi there. Just to confirm, I've now added a Telecare/Vulnerability marker to your EE account as we discussed. This lets our teams know about your reliance on the service and helps us provide you with the priority support you need.`, bt_template_nocontact: `Sorry I couldn't reach you. This is just to confirm that, as per our earlier conversation, I have now successfully added the Telecare/Vulnerability marker to your BT account.`, ee_template_nocontact: `Sorry I couldn't reach you. This is just to confirm that, as per our earlier conversation, I have now successfully added the Telecare/Vulnerability marker to your EE account.` },
+            { id: 'complaint_discussion', category: 'Complaints', dropdownText: 'Discussing a Complaint', delayDays: 0, bt_template: `Hi there. It was great speaking with you today about your complaint. If there's anything else you'd like to go over, you can call us on 150 from your BT line or 0800 800 150 from any phone. We're available 8am-9pm Monday to Friday and 8am-8pm at weekends, and we're always happy to help.`, ee_template: `Hi there. It was great speaking with you today about your complaint. If there's anything else you'd like to go over, you can call us on 150 from your EE phone or 07973 100 150 from any other phone. We're available 8am-9pm Monday to Friday and 8am-8pm at weekends, and we're always happy to help.`, bt_template_nocontact: `Hi there. I was just phoning to discuss your complaint. When you're ready to talk it through, please call us on 150 from your BT line or 0800 800 150 from any phone. We're available 8am-9pm Monday to Friday and 8am-8pm at weekends, or you can reply to this message if you'd like us to arrange another time to call.`, ee_template_nocontact: `Hi there. I was just phoning to discuss your complaint. When you're ready to talk it through, please call us on 150 from your EE phone or 07973 100 150 from any other phone. We're available 8am-9pm Monday to Friday and 8am-8pm at weekends, or you can reply to this message if you'd like us to arrange another time to call.` },
             { id: 'great_to_speak', category: 'Set Up / General', dropdownText: 'Great to Speak to You Follow-up', delayDays: 0, bt_template: `Hi there. It was great to speak to you today, and I hope everything is sorted now for you. You can also manage your account on BT.com or using the MyBT app on your iPhone or Android mobile. To get more information about it just follow this handy link http://bt.custhelp.com/app/answers/detail/a_id/53804/~/how-to-use-the-my-bt-app`, ee_template: `Hi there. It was great to speak to you today, and I hope everything is sorted for you now. You can also manage your account on EE.co.uk or using the My EE app on your mobile. You can find more information here: https://ee.co.uk/myee/app`, bt_template_nocontact: `Sorry I missed you. I was just calling to follow up and check that everything is now sorted for you. If you need anything else, you can manage your account via the MyBT app.`, ee_template_nocontact: `Sorry I missed you. I was just calling to follow up and check that everything is now sorted for you. If you need anything else, you can manage your account via the My EE app.`}
         ]
     };
@@ -518,8 +521,10 @@
     /**
      * Resets the scenario selection input and the final message output.
      */
-    function clearScenarioSelection() {
-        scenarioInput.value = '';
+    function clearScenarioSelection(preserveInput = false) {
+        if (!preserveInput) {
+            scenarioInput.value = '';
+        }
         selections.scenarioId = null;
         messageOutput.value = '';
         updateCharCounter();
@@ -651,13 +656,15 @@
     /**
      * Event listeners for the scenario search/select input.
      */
-    scenarioInput.addEventListener('input', populateDropdown);
-    scenarioInput.addEventListener('click', () => {
-        if (scenarioInput.value !== '') {
-            clearScenarioSelection();
+    scenarioInput.addEventListener('input', () => {
+        if (selections.scenarioId) {
+            clearScenarioSelection(true);
         }
         populateDropdown();
-        scenarioInput.focus();
+    });
+    scenarioInput.addEventListener('click', () => {
+        populateDropdown();
+        scenarioInput.select();
     });
     document.addEventListener('click', (e) => {
         // Hide the dropdown if the user clicks anywhere outside the main container.
